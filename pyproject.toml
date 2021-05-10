@@ -1,0 +1,17 @@
+[tool.kedro]
+package_name = "kedro_tf_image"
+project_name = "Kedro TF Image"
+project_version = "0.17.3"
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 88
+known_third_party = "kedro"
+
+[tool.pytest.ini_options]
+addopts = """
+--cov-report term-missing \
+--cov src/kedro_tf_image -ra"""
