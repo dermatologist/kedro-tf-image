@@ -25,29 +25,7 @@
 #
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Kedro TF Image
+"""
 
-"""Project pipelines."""
-from typing import Dict
-
-from kedro.pipeline import Pipeline
-
-from kedro_tf_image.pipelines import data_engineering as de
-from kedro_tf_image.pipelines import data_science as ds
-from kedro_tf_image.pipelines import preprocess as preprocess
-
-
-def register_pipelines() -> Dict[str, Pipeline]:
-    """Register the project's pipelines.
-
-    Returns:
-        A mapping from a pipeline name to a ``Pipeline`` object.
-
-    """
-    data_engineering_pipeline = de.create_pipeline()
-    data_science_pipeline = ds.create_pipeline()
-    preprocess_pipeline = preprocess.create_pipeline()
-    return {
-        "de": data_engineering_pipeline,
-        "ds": data_science_pipeline,
-        "__default__": preprocess_pipeline,
-    }
+__version__ = "0.1"

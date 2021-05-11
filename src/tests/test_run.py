@@ -40,11 +40,14 @@ from pathlib import Path
 import pytest
 from kedro.framework.context import KedroContext
 
+from kedro_tf_image.hooks import ProjectHooks
+from kedro.extras.datasets.pandas import CSVDataSet
 
 @pytest.fixture
 def project_context():
     return KedroContext(
-        package_name="kedro_tf_image", project_path=Path.cwd()
+        package_name="kedro_tf_image",
+        project_path=Path.cwd()
     )
 
 
@@ -54,3 +57,8 @@ def project_context():
 class TestProjectContext:
     def test_package_name(self, project_context):
         assert project_context.package_name == "kedro_tf_image"
+
+    # def test_csv_dataset(self):
+    #     data_set = CSVDataSet(filepath="data/01_raw/skintype.csv")
+    #     reloaded = data_set.load()
+    #     print(reloaded) # Pandas dataframe

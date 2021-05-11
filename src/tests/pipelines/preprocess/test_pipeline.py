@@ -25,29 +25,34 @@
 #
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+This is a boilerplate test file for pipeline 'preprocess'
+generated using Kedro 0.17.3.
+Please add your pipeline tests here.
 
-"""Project pipelines."""
-from typing import Dict
+Kedro recommends using `pytest` framework, more info about it can be found
+in the official documentation:
+https://docs.pytest.org/en/latest/getting-started.html
+"""
+from pathlib import Path
+from kedro.extras.datasets.pandas.csv_dataset import CSVDataSet
+from kedro.framework.context.context import KedroContext
+from kedro.pipeline import node
+from kedro.pipeline.pipeline import Pipeline
+import pytest
+from kedro_tf_image.pipelines.preprocess.nodes import load_data_from_url
 
-from kedro.pipeline import Pipeline
+@pytest.fixture
+def project_context():
+    return KedroContext(
+        package_name="kedro_tf_image",
+        project_path=Path.cwd(),
+    )
 
-from kedro_tf_image.pipelines import data_engineering as de
-from kedro_tf_image.pipelines import data_science as ds
-from kedro_tf_image.pipelines import preprocess as preprocess
+class TestPreprocesPipeline:
+    def test_csv_read(self, project_context):
+        data_set = CSVDataSet(filepath="data/01_raw/skintype.csv")
+        reloaded = data_set.load()
+        print(load_data_from_url(reloaded))
 
 
-def register_pipelines() -> Dict[str, Pipeline]:
-    """Register the project's pipelines.
-
-    Returns:
-        A mapping from a pipeline name to a ``Pipeline`` object.
-
-    """
-    data_engineering_pipeline = de.create_pipeline()
-    data_science_pipeline = ds.create_pipeline()
-    preprocess_pipeline = preprocess.create_pipeline()
-    return {
-        "de": data_engineering_pipeline,
-        "ds": data_science_pipeline,
-        "__default__": preprocess_pipeline,
-    }

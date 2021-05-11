@@ -26,28 +26,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Project pipelines."""
-from typing import Dict
+"""
+This is a boilerplate pipeline 'preprocess'
+generated using Kedro 0.17.3
+"""
 
-from kedro.pipeline import Pipeline
+from kedro.pipeline import Pipeline, node
 
-from kedro_tf_image.pipelines import data_engineering as de
-from kedro_tf_image.pipelines import data_science as ds
-from kedro_tf_image.pipelines import preprocess as preprocess
+from kedro_tf_image.pipelines.preprocess.nodes import load_data_from_url
 
 
-def register_pipelines() -> Dict[str, Pipeline]:
-    """Register the project's pipelines.
-
-    Returns:
-        A mapping from a pipeline name to a ``Pipeline`` object.
-
-    """
-    data_engineering_pipeline = de.create_pipeline()
-    data_science_pipeline = ds.create_pipeline()
-    preprocess_pipeline = preprocess.create_pipeline()
-    return {
-        "de": data_engineering_pipeline,
-        "ds": data_science_pipeline,
-        "__default__": preprocess_pipeline,
-    }
+def create_pipeline(**kwargs):
+    return Pipeline([
+                    node(
+                        load_data_from_url, # Optional parameter delay, defaults to 3 seconds between each call
+                        ["skintype_data"],
+                        "imageset",
+                        name="download"
+                    ),
+    ])
