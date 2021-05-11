@@ -20,7 +20,7 @@ from tensorflow.keras.applications.resnet50 import preprocess_input
 imageset:
   type: PartitionedDataSet
   dataset: {
-      "type": "kedro_tf_image.extras.datasets.image_dataset.TfImageDataSet",
+      "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
       "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input"
   }
   path: data/01_raw/imageset

@@ -50,7 +50,7 @@ example_iris_data:
 imageset:
   type: PartitionedDataSet
   dataset: {
-      "type": "kedro_tf_image.extras.datasets.image_dataset.TfImageDataSet",
+      "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
       "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
       "imagedim": 224
   }
