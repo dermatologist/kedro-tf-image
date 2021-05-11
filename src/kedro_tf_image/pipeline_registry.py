@@ -33,6 +33,7 @@ from kedro.pipeline import Pipeline
 
 from kedro_tf_image.pipelines import data_engineering as de
 from kedro_tf_image.pipelines import data_science as ds
+from kedro_tf_image.pipelines import preprocess as preprocess
 
 
 def register_pipelines() -> Dict[str, Pipeline]:
@@ -44,9 +45,9 @@ def register_pipelines() -> Dict[str, Pipeline]:
     """
     data_engineering_pipeline = de.create_pipeline()
     data_science_pipeline = ds.create_pipeline()
-
+    preprocess_pipeline = preprocess.create_pipeline()
     return {
         "de": data_engineering_pipeline,
         "ds": data_science_pipeline,
-        "__default__": data_engineering_pipeline + data_science_pipeline,
+        "__default__": preprocess_pipeline,
     }

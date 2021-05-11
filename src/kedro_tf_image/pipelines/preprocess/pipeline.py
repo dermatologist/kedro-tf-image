@@ -33,6 +33,15 @@ generated using Kedro 0.17.3
 
 from kedro.pipeline import Pipeline, node
 
+from kedro_tf_image.pipelines.preprocess.nodes import load_data_from_url
+
 
 def create_pipeline(**kwargs):
-    return Pipeline([])
+    return Pipeline([
+                    node(
+                        load_data_from_url, # Optional parameter delay, defaults to 3 seconds between each call
+                        ["skintype_data"],
+                        "imageset",
+                        name="download"
+                    ),
+    ])

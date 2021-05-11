@@ -1,8 +1,10 @@
 import os
 from pathlib import PurePosixPath
 from typing import Any, Callable, Dict
+from copy import deepcopy
 
 from kedro.io.core import (
+    AbstractVersionedDataSet,
     Version,
     get_filepath_str,
     get_protocol_and_path,
@@ -28,7 +30,7 @@ imageset:
   filename_suffix: ".jpg"
 """
 # from tensorflow.keras.applications.resnet50 import preprocess_input
-class TfImageDataSet(ImageDataSet):
+class TfImageDataSet(AbstractVersionedDataSet):
     """``ImageDataSet`` loads / save image data from a given filepath as `numpy` array using Pillow.
 
     Differences from parent class
@@ -47,10 +49,16 @@ class TfImageDataSet(ImageDataSet):
         >>> TfImageDataSet(filepath='/img/file/path.png', preprocess_input=tensorflow.keras.applications.resnet50.preprocess_input)
     """
 
+    DEFAULT_SAVE_ARGS = {}  # type: Dict[str, Any]
+
+
     # These should be supplied in the catalog
-    def __init__(self, filepath: str,
-                save_args: Any = None, fs_args: Any = None,
-                version: Version = None,
+    def __init__(self,
+                 filepath: str,
+                 save_args: Dict[str, Any] = None,
+                 version: Version = None,
+                 credentials: Dict[str, Any] = None,
+                 fs_args: Dict[str, Any] = None,
                 preprocess_input: Callable = preprocess_input, #defaults to ResNet50 preprocessor
                 imagedim: int = 224): #defaults to ResNet50 dim
         """Creates a new instance of ImageDataSet to load / save image data for given filepath.
@@ -58,14 +66,33 @@ class TfImageDataSet(ImageDataSet):
         Args:
             filepath: The location of the image file to load / save data.
         """
-        # parse the path and protocol (e.g. file, http, s3, etc.)
-        super().__init__(self, filepath, save_args=save_args,
-                         fs_args=fs_args, version=version)
-        protocol, path = get_protocol_and_path(filepath)
+        _fs_args = deepcopy(fs_args) or {}
+        _fs_open_args_load = _fs_args.pop("open_args_load", {})
+        _fs_open_args_save = _fs_args.pop("open_args_save", {})
+        _credentials = deepcopy(credentials) or {}
+
+        protocol, path = get_protocol_and_path(filepath, version)
+        if protocol == "file":
+            _fs_args.setdefault("auto_mkdir", True)
+
         self._protocol = protocol
-        self._filepath = PurePosixPath(path)
-        self._fs = fsspec.filesystem(self._protocol)
-        self._version = version
+        self._fs = fsspec.filesystem(self._protocol, **_credentials, **_fs_args)
+
+        super().__init__(
+            filepath=PurePosixPath(path),
+            version=version,
+            exists_function=self._fs.exists,
+            glob_function=self._fs.glob,
+        )
+
+        # Handle default save argument
+        self._save_args = deepcopy(self.DEFAULT_SAVE_ARGS)
+        if save_args is not None:
+            self._save_args.update(save_args)
+
+        _fs_open_args_save.setdefault("mode", "wb")
+        self._fs_open_args_load = _fs_open_args_load
+        self._fs_open_args_save = _fs_open_args_save
         self._preprocess_input = preprocess_input
         self._imagedim = imagedim
 
@@ -97,7 +124,8 @@ class TfImageDataSet(ImageDataSet):
         """Saves image data to the specified filepath."""
         # using get_filepath_str ensures that the protocol and path are appended correctly for different filesystems
         save_path = get_filepath_str(self._get_save_path(), self._protocol)
-        save_img(save_path, data)
+        reshaped_img = data.reshape(self._imagedim, self._imagedim, 3)  # (224,224,3)
+        save_img(save_path, reshaped_img)
 
     def _describe(self) -> Dict[str, Any]:
         """Returns a dict that describes the attributes of the dataset."""

@@ -40,18 +40,42 @@ from urllib.request import urlopen
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def load_data_from_url(data: pd.DataFrame) -> Dict[str, Any]:
+def load_data_from_url(data: pd.DataFrame, delay: int = 3) -> Dict[str, Any]:
+    """Loads images from URLs in the csv
+
+    The Partitioned dataset expects a Dict in the following format
+    {'filename1': data1, 'filename2: data2}
+
+    Args:
+        data (pd.DataFrame): The data has the following fields id, url and labels. labels are seperated by  |
+
+    Returns:
+        Dict[str, Any]: Returns a dict for PartitionedDataset. see the format above
+    """
     to_return = {}
     for index, row in data.iterrows():
-        downloaded_data = read_url(row['url'])
-        filename = "_" + row['labels'].replace('|', '_') + "_" + str(index) + ".jpg" # make this a parameter
+        downloaded_data = read_url(row['url'], delay)
+        # Example: _dog_black_white_1
+        filename = "_" + row['labels'].replace('|', '_') + "_" + str(index)
         to_return[filename] = downloaded_data
-        print(filename)
     return to_return
 
 
-def read_url(url) -> np.ndarray:
+def read_url(url: str, delay: int = 3) -> np.ndarray:
+    """Loads resizes and returns an image from a URL
+
+    Args:
+        url (str): the image Url
+        delay (int, optional): Delay between each call. Defaults to 3.
+
+    Returns:
+        np.ndarray: [description]
+    """
     with urlopen(url) as request:
-        time.sleep(5) #parameter
+        time.sleep(delay)
         img_array = np.asarray(bytearray(request.read()), dtype=np.uint8)
-    return img_array
+        img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+        res = cv2.resize(img, dsize=(224, 224), interpolation=cv2.INTER_CUBIC)
+        return cv2.cvtColor(res, cv2.COLOR_BGR2RGB)
+
+    # return img_array
