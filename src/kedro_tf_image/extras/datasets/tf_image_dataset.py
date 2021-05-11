@@ -3,6 +3,7 @@ from pathlib import PurePosixPath
 from typing import Any, Callable, Dict
 
 from kedro.io.core import (
+    Version,
     get_filepath_str,
     get_protocol_and_path,
 )
@@ -48,6 +49,8 @@ class TfImageDataSet(ImageDataSet):
 
     # These should be supplied in the catalog
     def __init__(self, filepath: str,
+                save_args: Any = None, fs_args: Any = None,
+                version: Version = None,
                 preprocess_input: Callable = preprocess_input, #defaults to ResNet50 preprocessor
                 imagedim: int = 224): #defaults to ResNet50 dim
         """Creates a new instance of ImageDataSet to load / save image data for given filepath.
@@ -56,11 +59,13 @@ class TfImageDataSet(ImageDataSet):
             filepath: The location of the image file to load / save data.
         """
         # parse the path and protocol (e.g. file, http, s3, etc.)
+        super().__init__(self, filepath, save_args=save_args,
+                         fs_args=fs_args, version=version)
         protocol, path = get_protocol_and_path(filepath)
         self._protocol = protocol
         self._filepath = PurePosixPath(path)
         self._fs = fsspec.filesystem(self._protocol)
-        self._version = None  #TODO: To remove this
+        self._version = version
         self._preprocess_input = preprocess_input
         self._imagedim = imagedim
 
@@ -81,12 +86,18 @@ class TfImageDataSet(ImageDataSet):
         # get the feature vector
         return np.asarray(imgx)
 
-    def _save(self, data: Dict[str, Any]) -> None:
+    # def _save(self, data: Dict[str, Any]) -> None:
+    #     """Saves image data to the specified filepath."""
+    #     # using get_filepath_str ensures that the protocol and path are appended correctly for different filesystems
+    #     save_path = get_filepath_str(self._get_save_path(), self._protocol)
+    #     save_folder = os.path.dirname(save_path)
+    #     save_img(save_folder + data['filename'], data['image'])
+
+    def _save(self, data: np.ndarray) -> None:
         """Saves image data to the specified filepath."""
         # using get_filepath_str ensures that the protocol and path are appended correctly for different filesystems
         save_path = get_filepath_str(self._get_save_path(), self._protocol)
-        save_folder = os.path.dirname(save_path)
-        save_img(save_folder + data['filename'], data['image'])
+        save_img(save_path, data)
 
     def _describe(self) -> Dict[str, Any]:
         """Returns a dict that describes the attributes of the dataset."""

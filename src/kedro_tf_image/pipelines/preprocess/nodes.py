@@ -31,6 +31,7 @@ Ref2: https://www.tensorflow.org/tutorials/load_data/images
 """
 
 
+import time
 from typing import Any, Dict
 import tensorflow as tf
 import numpy as np
@@ -39,37 +40,18 @@ from urllib.request import urlopen
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def get(url):
-    with urlopen(str(url.numpy().decode("utf-8"))) as request:
+def load_data_from_url(data: pd.DataFrame) -> Dict[str, Any]:
+    to_return = {}
+    for index, row in data.iterrows():
+        downloaded_data = read_url(row['url'])
+        filename = "_" + row['labels'].replace('|', '_') + "_" + str(index) + ".jpg" # make this a parameter
+        to_return[filename] = downloaded_data
+        print(filename)
+    return to_return
+
+
+def read_url(url) -> np.ndarray:
+    with urlopen(url) as request:
+        time.sleep(5) #parameter
         img_array = np.asarray(bytearray(request.read()), dtype=np.uint8)
-    img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
-    return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-
-def read_image_from_url(url):
-    return tf.py_function(get, [url], tf.uint8)
-
-
-def load_data_from_url(data: pd.DataFrame) -> None:
-    print(data)
-
-"""
-dataset = tf.data.Dataset.from_tensor_slices(image_urls)
-
-def get(url):
-    with urlopen(str(url.numpy().decode("utf-8"))) as request:
-        img_array = np.asarray(bytearray(request.read()), dtype=np.uint8)
-    img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
-    return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-def read_image_from_url(url):
-    return tf.py_function(get, [url], tf.uint8)
-
-
-dataset_images = dataset.map(lambda x: read_image_from_url(x))
-
-for d in dataset_images:
-  print(d)
-
-
-"""
+    return img_array

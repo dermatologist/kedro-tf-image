@@ -58,7 +58,7 @@ class TestProjectContext:
     def test_package_name(self, project_context):
         assert project_context.package_name == "kedro_tf_image"
 
-    def test_csv_dataset(self):
-        data_set = CSVDataSet(filepath="data/01_raw/skintype.csv")
-        reloaded = data_set.load()
-        print(reloaded) # Pandas dataframe
+    # def test_csv_dataset(self):
+    #     data_set = CSVDataSet(filepath="data/01_raw/skintype.csv")
+    #     reloaded = data_set.load()
+    #     print(reloaded) # Pandas dataframe
