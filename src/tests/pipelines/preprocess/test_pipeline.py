@@ -34,3 +34,25 @@ Kedro recommends using `pytest` framework, more info about it can be found
 in the official documentation:
 https://docs.pytest.org/en/latest/getting-started.html
 """
+from pathlib import Path
+from kedro.extras.datasets.pandas.csv_dataset import CSVDataSet
+from kedro.framework.context.context import KedroContext
+from kedro.pipeline import node
+from kedro.pipeline.pipeline import Pipeline
+import pytest
+from kedro_tf_image.pipelines.preprocess.nodes import load_data_from_url
+
+@pytest.fixture
+def project_context():
+    return KedroContext(
+        package_name="kedro_tf_image",
+        project_path=Path.cwd(),
+    )
+
+class TestPreprocesPipeline:
+    def test_csv_read(self, project_context):
+        data_set = CSVDataSet(filepath="data/01_raw/skintype.csv")
+        reloaded = data_set.load()
+        print(load_data_from_url(reloaded))
+
+
