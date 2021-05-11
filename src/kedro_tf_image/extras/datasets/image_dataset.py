@@ -60,7 +60,7 @@ class TfImageDataSet(ImageDataSet):
         self._protocol = protocol
         self._filepath = PurePosixPath(path)
         self._fs = fsspec.filesystem(self._protocol)
-        self._version = None
+        self._version = None  #TODO: To remove this
         self._preprocess_input = preprocess_input
         self._imagedim = imagedim
 
