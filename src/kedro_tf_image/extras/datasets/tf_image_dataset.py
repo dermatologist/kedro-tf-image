@@ -1,4 +1,3 @@
-import os
 from pathlib import PurePosixPath
 from typing import Any, Callable, Dict
 from copy import deepcopy
@@ -31,17 +30,10 @@ imageset:
 """
 # from tensorflow.keras.applications.resnet50 import preprocess_input
 class TfImageDataSet(AbstractVersionedDataSet):
-    """``ImageDataSet`` loads / save image data from a given filepath as `numpy` array using Pillow.
+    """``TfImageDataSet`` loads / save image data from a given filepath as `numpy` array using TF.
 
-    Differences from parent class
+    Differences from ImageDataSet
         * uses tf functions to load, save and process images
-        * uses folderpath instead of filepath for save
-        * filename should be supplied along with save
-        * save accepts a Dict as below:
-        {
-            image: np.ndarray,
-            filename: str
-        }
 
     Example:
     ::
@@ -112,13 +104,6 @@ class TfImageDataSet(AbstractVersionedDataSet):
         imgx = self._preprocess_input(reshaped_img)
         # get the feature vector
         return np.asarray(imgx)
-
-    # def _save(self, data: Dict[str, Any]) -> None:
-    #     """Saves image data to the specified filepath."""
-    #     # using get_filepath_str ensures that the protocol and path are appended correctly for different filesystems
-    #     save_path = get_filepath_str(self._get_save_path(), self._protocol)
-    #     save_folder = os.path.dirname(save_path)
-    #     save_img(save_folder + data['filename'], data['image'])
 
     def _save(self, data: np.ndarray) -> None:
         """Saves image data to the specified filepath."""
