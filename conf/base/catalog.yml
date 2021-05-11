@@ -51,7 +51,8 @@ imageset:
   type: PartitionedDataSet
   dataset: {
       "type": "kedro_tf_image.extras.datasets.image_dataset.TfImageDataSet",
-      "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input"
+      "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
+      "imagedim": 224
   }
   path: data/01_raw/imageset
   filename_suffix: ".jpg"
