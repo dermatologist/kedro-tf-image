@@ -15,8 +15,7 @@ class TfImageFolder(AbstractVersionedDataSet):
     """
     DEFAULT_LOAD_ARGS = {}  # type: Dict[str, Any]
 
-    def __init__(self, folderpath: str):
-        load_args: Dict[str, Any] = None,
+    def __init__(self, folderpath: str, load_args: Dict[str, Any]):
         self._version = None
         self._folderpath = folderpath
         # Handle default save argument
@@ -27,12 +26,18 @@ class TfImageFolder(AbstractVersionedDataSet):
     def _load(self) -> Any:
         train_ds = image_dataset_from_directory(
             self._folderpath,
-            subset = 'training'
-            **self._load_args)
+            subset = 'training',
+            validation_split=self._load_args['validation_split'],
+            seed=self._load_args['seed'],
+            image_size=self._load_args['image_size'],
+            batch_size=self._load_args['batch_size'])
         val_ds = image_dataset_from_directory(
             self._folderpath,
-            subset='validation'
-            ** self._load_args)
+            subset='validation',
+            validation_split=self._load_args['validation_split'],
+            seed=self._load_args['seed'],
+            image_size=self._load_args['image_size'],
+            batch_size=self._load_args['batch_size'])
         return(train_ds, val_ds)
 
     def _save(self, data: Any) -> None:
