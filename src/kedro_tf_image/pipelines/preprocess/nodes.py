@@ -31,13 +31,15 @@ Ref2: https://www.tensorflow.org/tutorials/load_data/images
 """
 
 import time
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, List
+from numpy.core.fromnumeric import shape
 import tensorflow as tf
 import numpy as np
 import cv2
 from urllib.request import urlopen
 import matplotlib.pyplot as plt
 import pandas as pd
+from tensorflow.python.data.ops.dataset_ops import AUTOTUNE
 
 def load_data_from_url(data: pd.DataFrame, delay: int = 3, imagedim: int = 224) -> Dict[str, Any]:
     """Loads images from URLs in the csv
@@ -108,3 +110,38 @@ def load_data_from_patitioned_dataset(partitioned_input: Dict[str, Callable[[], 
         result['labels'] = labels
         to_return[partition_key] = result
     return to_return
+
+
+def get_numeric_labels(labels: List, master_labels: List ):
+    """Generates numeric labels
+
+    Args:
+        labels (List): [description]
+        master_labels (List): [description]
+
+    Returns:
+        [type]: [description]
+    """
+    numeric_labels = []
+    for label in master_labels:
+        if(label in labels):
+            numeric_labels.append(1)
+        else:
+            numeric_labels.append(0)
+    return numeric_labels
+
+
+# def process_path(from_partitioned_dataset: Dict[str, any], master_labels: List, file_path_as_key: str ):
+#     record = from_partitioned_dataset[file_path_as_key]
+#     return record['image'], get_numeric_labels(record['labels'], master_labels)
+
+
+
+def get_tf_datasets(from_partitioned_dataset_loader: Dict[str, any], params: Dict[str, Any]):
+    data = from_partitioned_dataset_loader.values()
+    images = [np.asarray(record['image']).astype('float32') for record in data]
+    labels = [get_numeric_labels(record['labels'], params['master_labels']) for record in data]
+    slices = (images, labels)
+    dataset = tf.data.Dataset.from_tensor_slices(slices)
+    print(dataset)
+
