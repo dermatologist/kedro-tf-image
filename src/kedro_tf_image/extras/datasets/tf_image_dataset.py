@@ -51,8 +51,8 @@ class TfImageDataSet(AbstractVersionedDataSet):
                  version: Version = None,
                  credentials: Dict[str, Any] = None,
                  fs_args: Dict[str, Any] = None,
-                preprocess_input: Callable = preprocess_input, #defaults to ResNet50 preprocessor
-                imagedim: int = 224): #defaults to ResNet50 dim
+                 preprocess_input: Callable = preprocess_input, #defaults to ResNet50 preprocessor
+                 imagedim: int = 224): #defaults to ResNet50 dim
         """Creates a new instance of ImageDataSet to load / save image data for given filepath.
 
         Args:

@@ -60,3 +60,13 @@ imageset:
 skintype_data:
   type: pandas.CSVDataSet
   filepath: data/01_raw/skintype.csv
+
+imagefolder:
+  type: kedro_tf_image.extras.datasets.tf_image_folder.TfImageFolder
+  folderpath: "/home/a/archer/beapen/scratch/dermnet/train/rosacea-pd/tf"
+  load_args: {
+    "validation_split": 0.2,
+    "seed": 123,
+    "image_size": (224, 224),
+    "batch_size": 1
+  }
