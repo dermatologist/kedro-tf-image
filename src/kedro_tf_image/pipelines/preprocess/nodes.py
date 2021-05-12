@@ -131,17 +131,20 @@ def get_numeric_labels(labels: List, master_labels: List ):
     return numeric_labels
 
 
-# def process_path(from_partitioned_dataset: Dict[str, any], master_labels: List, file_path_as_key: str ):
-#     record = from_partitioned_dataset[file_path_as_key]
-#     return record['image'], get_numeric_labels(record['labels'], master_labels)
-
-
-
 def get_tf_datasets(from_partitioned_dataset_loader: Dict[str, any], params: Dict[str, Any]):
+    """Returns train and validation datasets for TF
+
+    Args:
+        from_partitioned_dataset_loader (Dict[str, any]): [description]
+        params (Dict[str, Any]): [description]
+    """
     data = from_partitioned_dataset_loader.values()
     images = [np.asarray(record['image']).astype('float32') for record in data]
     labels = [get_numeric_labels(record['labels'], params['master_labels']) for record in data]
     slices = (images, labels)
     dataset = tf.data.Dataset.from_tensor_slices(slices)
-    print(dataset)
+    val_size = int(len(data) * params['val_size'])
+    train_ds = dataset.skip(val_size)
+    val_ds = dataset.take(val_size)
+    return(train_ds, val_ds)
 

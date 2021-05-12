@@ -84,7 +84,10 @@ class TestPreprocesPipeline:
             dataset=dataset, path=path, filename_suffix=filename_suffix)
         reloaded = data_set.load()
         reloaded = load_data_from_patitioned_dataset(reloaded)
-        data = get_tf_datasets(reloaded, params={'master_labels': ['cat', 'dog', 'white', 'black', 'tan']})  # TODO Change this to assert
+        (train_ds, val_ds) = get_tf_datasets(reloaded, params={'master_labels': ['cat', 'dog', 'white', 'black', 'tan'], 'val_size': 0.2})  # TODO Change this to assert
+        for image, label in train_ds.take(1):
+            print("Image shape: ", image.numpy().shape)
+            print("Label: ", label.numpy())
 
     def test_get_labels(self, project_context):
         labels = ['cat', 'white']
