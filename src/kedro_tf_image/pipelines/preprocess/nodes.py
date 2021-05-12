@@ -31,7 +31,7 @@ Ref2: https://www.tensorflow.org/tutorials/load_data/images
 """
 
 import time
-from typing import Any, Dict
+from typing import Any, Callable, Dict
 import tensorflow as tf
 import numpy as np
 import cv2
@@ -79,3 +79,32 @@ def read_url(url: str, delay, imagedim) -> np.ndarray:
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
         res = cv2.resize(img, dsize=(imagedim, imagedim), interpolation=cv2.INTER_CUBIC)
         return cv2.cvtColor(res, cv2.COLOR_BGR2RGB)
+
+
+def load_data_from_patitioned_dataset(partitioned_input: Dict[str, Callable[[], Any]]) -> Dict[str, Any]:
+    """Loads images and labels (from filename eg. _cat_white_tan_12.jpg) from a PartitionedDataset
+
+    Returns
+    {
+        filename:{
+                image: np.array
+                labels: List
+        }
+    }
+
+    Args:
+        partitioned_input (Dict[str, Callable[[], Any]]): [description]
+
+    Returns:
+        Dict[str, Any]: see the Format above
+    """
+    to_return = {}
+    for partition_key, partition_load_func in sorted(partitioned_input.items()):
+        result = {}
+    # load the actual partition data which is an np.array preprocessed by tf
+        partition_data = partition_load_func()
+        labels = partition_key.split('_')[1:-1]
+        result['image'] = partition_data
+        result['labels'] = labels
+        to_return[partition_key] = result
+    return to_return

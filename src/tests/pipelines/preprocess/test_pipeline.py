@@ -40,8 +40,9 @@ from kedro.framework.context.context import KedroContext
 from kedro.pipeline import node
 from kedro.pipeline.pipeline import Pipeline
 import pytest
-from kedro_tf_image.pipelines.preprocess.nodes import load_data_from_url
-
+from kedro_tf_image.pipelines.preprocess.nodes import load_data_from_patitioned_dataset, load_data_from_url
+from kedro.io import PartitionedDataSet
+from tensorflow.keras.applications.resnet50 import preprocess_input
 @pytest.fixture
 def project_context():
     return KedroContext(
@@ -53,6 +54,20 @@ class TestPreprocesPipeline:
     def test_csv_read(self, project_context):
         data_set = CSVDataSet(filepath="data/01_raw/skintype.csv")
         reloaded = data_set.load()
-        print(load_data_from_url(reloaded))
+        print(load_data_from_url(reloaded))  # TODO Change this to assert
+
+    def test_image_read(self, project_context):
+        dataset = {
+            "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
+            "preprocess_input": preprocess_input,
+            "imagedim": 224
+        }
+        path= 'data/01_raw/imageset'
+        filename_suffix= ".jpg"
+        data_set = PartitionedDataSet(dataset=dataset, path=path, filename_suffix=filename_suffix)
+        reloaded = data_set.load()
+        data = load_data_from_patitioned_dataset(reloaded)  # TODO Change this to assert
+        print(data['_cat_white_tan_16']['labels'])
+
 
 
