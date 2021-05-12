@@ -31,7 +31,7 @@ Ref2: https://www.tensorflow.org/tutorials/load_data/images
 """
 
 import time
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Tuple
 from numpy.core.fromnumeric import shape
 import tensorflow as tf
 import numpy as np
@@ -40,6 +40,7 @@ from urllib.request import urlopen
 import matplotlib.pyplot as plt
 import pandas as pd
 from tensorflow.python.data.ops.dataset_ops import AUTOTUNE
+from tensorflow.keras import layers
 
 def load_data_from_url(data: pd.DataFrame, delay: int = 3, imagedim: int = 224) -> Dict[str, Any]:
     """Loads images from URLs in the csv
@@ -112,7 +113,7 @@ def load_data_from_patitioned_dataset(partitioned_input: Dict[str, Callable[[], 
     return to_return
 
 
-def get_numeric_labels(labels: List, master_labels: List ):
+def get_numeric_labels(labels: List, master_labels: List) -> List:
     """Generates numeric labels
 
     Args:
@@ -131,7 +132,7 @@ def get_numeric_labels(labels: List, master_labels: List ):
     return numeric_labels
 
 
-def get_tf_datasets(from_partitioned_dataset_loader: Dict[str, any], params: Dict[str, Any]):
+def get_tf_datasets(from_partitioned_dataset_loader: Dict[str, any], params: Dict[str, Any]) -> Tuple:
     """Returns train and validation datasets for TF
 
     Args:
@@ -148,3 +149,38 @@ def get_tf_datasets(from_partitioned_dataset_loader: Dict[str, any], params: Dic
     val_ds = dataset.take(val_size)
     return(train_ds, val_ds)
 
+def autotune(datasets: Tuple) -> Tuple:
+    """[summary]
+
+    Args:
+        datasets (Tuple): [description]
+
+    Returns:
+        Tuple: [description]
+    """
+    AUTOTUNE = tf.data.AUTOTUNE
+    (train_ds, val_ds) = datasets
+    train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+    val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
+    return(train_ds, val_ds)
+
+
+def standardize(datasets: Tuple) -> Tuple:
+    """Standardize datasets
+
+    There are two ways to use this layer. You can apply it to the dataset by calling map.
+    Or, you can include the layer inside your model definition, which can simplify deployment.
+    We adopt the first approach as we will not be altering the base model in anyway.
+
+
+    Args:
+        datasets (Tuple): [description]
+
+    Returns:
+        Tuple: [description]
+    """
+    normalization_layer = layers.experimental.preprocessing.Rescaling(1./255)
+    (train_ds, val_ds) = datasets
+    train_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
+    val_ds = val_ds.map(lambda x, y: (normalization_layer(x), y))
+    return(train_ds, val_ds)
