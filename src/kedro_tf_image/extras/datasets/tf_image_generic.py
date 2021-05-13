@@ -17,12 +17,7 @@ from tensorflow.keras.preprocessing.image import load_img
 from tensorflow.keras.preprocessing.image import save_img
 from tensorflow.keras.applications.resnet50 import preprocess_input
 
-DEFAULT_SAVE_ARGS = {}
-DEFAULT_LOAD_ARGS = {
-    'imagedim': 224,
-}
-
-class TfGenericImage(AbstractVersionedDataSet):
+class TfImageGeneric(AbstractVersionedDataSet):
     """``TfGenericImage`` loads / save image data from a given filepath as `numpy` array using Pillow.
 
     Example:
@@ -31,7 +26,13 @@ class TfGenericImage(AbstractVersionedDataSet):
         >>> TfGenericImage(filepath='/img/file/path.png')
     """
 
-    def __init__(self, filepath: str, load_args: Dict[str, Any], save_args: Dict[str, Any]):
+
+    DEFAULT_SAVE_ARGS = {}
+    DEFAULT_LOAD_ARGS = {
+        'imagedim': 224,
+    }
+
+    def __init__(self, filepath: str, load_args: Dict[str, Any] = {}, save_args: Dict[str, Any] = {}):
         """Creates a new instance of ImageDataSet to load / save image data for given filepath.
 
         Args:
