@@ -40,11 +40,7 @@ from kedro.framework.context.context import KedroContext
 from kedro.pipeline import node
 from kedro.pipeline.pipeline import Pipeline
 import pytest
-from kedro_tf_image.pipelines.preprocess.nodes import get_numeric_labels, get_tf_datasets, load_data_from_patitioned_dataset, load_data_from_url
-from kedro.io import PartitionedDataSet
-from tensorflow.keras.applications.resnet50 import preprocess_input
-from kedro_tf_image.extras.datasets.tf_image_folder import TfImageFolder
-from kedro_tf_image.extras.datasets.tf_image_generic import TfImageGeneric
+
 
 
 @pytest.fixture
@@ -60,61 +56,4 @@ class TestPreprocesPipeline:
     #     data_set = CSVDataSet(filepath="data/01_raw/skintype.csv")
     #     reloaded = data_set.load()
     #     print(load_data_from_url(reloaded))  # TODO Change this to assert
-
-    def test_image_read(self, project_context):
-        dataset = {
-            "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-            "preprocess_input": preprocess_input,
-            "imagedim": 224
-        }
-        path= 'data/01_raw/imageset'
-        filename_suffix= ".jpg"
-        data_set = PartitionedDataSet(dataset=dataset, path=path, filename_suffix=filename_suffix)
-        reloaded = data_set.load()
-        data = load_data_from_patitioned_dataset(reloaded)  # TODO Change this to assert
-        assert data['_cat_white_tan_16']['labels'] == ['cat', 'white', 'tan']
-
-    def test_tf_dataset(self, project_context):
-        dataset = {
-            "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-            "preprocess_input": preprocess_input,
-            "imagedim": 224
-        }
-        path = 'data/01_raw/imageset'
-        filename_suffix = ".jpg"
-        data_set = PartitionedDataSet(
-            dataset=dataset, path=path, filename_suffix=filename_suffix)
-        reloaded = data_set.load()
-        reloaded = load_data_from_patitioned_dataset(reloaded)
-        (train_ds, val_ds) = get_tf_datasets(reloaded, params={'master_labels': ['cat', 'dog', 'white', 'black', 'tan'], 'val_size': 0.2})  # TODO Change this to assert
-        for image, label in train_ds.take(1):
-            assert image.numpy().shape == (1, 224, 224, 3)
-
-
-    def test_get_labels(self, project_context):
-        labels = ['cat', 'white']
-        master_labels = ['cat', 'dog', 'white', 'black', 'tan']
-        assert len(get_numeric_labels(labels, master_labels)) == 5
-
-    def test_tf_folder(self, project_context):
-        folderpath = "/home/a/archer/beapen/scratch/dermnet/train/rosacea-pd/tf"
-        load_args =  {
-                "validation_split": 0.2,
-                "seed": 123,
-                "image_size": (224, 224),
-                "batch_size": 1
-            }
-        data_set = TfImageFolder(folderpath=folderpath, load_args=load_args)
-        (train_ds, val_ds) = data_set.load()
-        for image, label in train_ds.take(1):
-            assert image.numpy().shape == (1, 224, 224, 3)
-
-
-    def test_tf_generic(self, project_context):
-        filepath = "data/01_raw/imageset/_cat_black_white_15.jpg"
-        load_args = {
-            "target_size": (224, 224),
-            "imagedim": 224
-        }
-        data_set = TfImageGeneric(filepath=filepath, load_args=load_args)
-        assert data_set is not None
+    pass
