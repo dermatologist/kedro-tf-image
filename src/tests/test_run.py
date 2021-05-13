@@ -109,10 +109,9 @@ class TestProjectContext:
         load_args = {
             "validation_split": 0.2,
             "seed": 123,
-            "image_size": (224, 224),
             "batch_size": 1
         }
-        data_set = TfImageFolder(folderpath=folderpath, load_args=load_args)
+        data_set = TfImageFolder(folderpath=folderpath, imagedim=224, load_args=load_args)
         (train_ds, val_ds) = data_set.load()
         for image, label in train_ds.take(1):
             assert image.numpy().shape == (1, 224, 224, 3)

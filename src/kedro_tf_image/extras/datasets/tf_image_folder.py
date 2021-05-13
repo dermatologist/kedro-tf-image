@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 from copy import deepcopy
 
 from kedro.io.core import (
@@ -13,11 +13,14 @@ class TfImageFolder(AbstractVersionedDataSet):
 
         >>> TfImageFolder(filepath='/img/file/')
     """
-    DEFAULT_LOAD_ARGS = {}  # type: Dict[str, Any]
+    DEFAULT_LOAD_ARGS = {
 
-    def __init__(self, folderpath: str, load_args: Dict[str, Any]):
+    }  # type: Dict[str, Any]
+
+    def __init__(self, folderpath: str, imagedim: int, load_args: Dict[str, Any]):
         self._version = None
         self._folderpath = folderpath
+        self._imagedim = imagedim
         # Handle default load arguments
         self._load_args = deepcopy(self.DEFAULT_LOAD_ARGS)
         if load_args is not None:
@@ -26,10 +29,12 @@ class TfImageFolder(AbstractVersionedDataSet):
     def _load(self) -> Any:
         train_ds = image_dataset_from_directory(
             self._folderpath,
+            image_size=(self._imagedim, self._imagedim),
             subset = 'training',
             **self._load_args)
         val_ds = image_dataset_from_directory(
             self._folderpath,
+            image_size=(self._imagedim, self._imagedim),
             subset='validation',
             **self._load_args)
         return(train_ds, val_ds)
