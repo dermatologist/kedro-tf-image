@@ -33,10 +33,10 @@ generated using Kedro 0.17.3
 
 from kedro.pipeline import Pipeline, node
 
-from kedro_tf_image.pipelines.preprocess.nodes import load_data_from_url
+from kedro_tf_image.pipelines.preprocess.nodes import autotune, get_tf_datasets, load_data_from_patitioned_dataset, load_data_from_url
 
 
-def create_pipeline(**kwargs):
+def create_download_pipeline(**kwargs):   # input = input and output = output
     return Pipeline([
                     node(
                         load_data_from_url, # Optional parameter delay, defaults to 3 seconds between each call
@@ -45,3 +45,37 @@ def create_pipeline(**kwargs):
                         name="download"
                     ),
     ])
+
+
+def create_folder_pipeline(**kwargs):   # input = input and output = output
+    return Pipeline([
+                    node(
+                        autotune,
+                        ["imagefolder"],
+                        "output",
+                        name="folder"
+                    ),
+                    ])
+
+
+def create_multilabel_pipeline(**kwargs):   # input = input and output = output
+    return Pipeline([
+                    node(
+                        load_data_from_patitioned_dataset,
+                        ["imageset"],
+                        "from_partitined_reader",
+                        name="read_partitioned_data"
+                    ),
+                    node(
+                        get_tf_datasets,
+                        ["from_partitined_reader", "parameters"],
+                        "tf_datasets",
+                        name="create_datasets"
+                    ),
+                    node(
+                        autotune,
+                        ["tf_datasets"],
+                        "output",
+                        name="multilabel"
+                    ),
+                    ])
