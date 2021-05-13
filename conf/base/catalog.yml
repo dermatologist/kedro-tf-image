@@ -70,3 +70,22 @@ imagefolder:
     "image_size": (224, 224),
     "batch_size": 1
   }
+
+dgacne:
+  type: PartitionedDataSet
+  dataset: kedro_tf_image.extras.datasets.tf_image_generic.TfImageGeneric
+  path: data/01_raw/acne
+  filename_suffix: ".jpg"
+
+tfmodel:
+  type: tensorflow.TensorFlowModelDataset
+  filepath: data/06_models/f7d2b8ca1f18b668d5ee58fb3112ff5c2850e976
+  versioned: false
+
+dgcluster:
+  type: kedro.extras.datasets.matplotlib.MatplotlibWriter
+  filepath: data/07_model_output/cluster
+
+dermatogram:
+  type: kedro.extras.datasets.matplotlib.MatplotlibWriter
+  filepath: data/07_model_output/dermatogram
