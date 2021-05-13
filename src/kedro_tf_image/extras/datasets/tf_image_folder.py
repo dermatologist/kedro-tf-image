@@ -18,7 +18,7 @@ class TfImageFolder(AbstractVersionedDataSet):
     def __init__(self, folderpath: str, load_args: Dict[str, Any]):
         self._version = None
         self._folderpath = folderpath
-        # Handle default save argument
+        # Handle default load arguments
         self._load_args = deepcopy(self.DEFAULT_LOAD_ARGS)
         if load_args is not None:
             self._load_args.update(load_args)
