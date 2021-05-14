@@ -7,9 +7,10 @@ from kedro.io.core import (
 )
 from tensorflow.keras.preprocessing import image_dataset_from_directory
 import tensorflow as tf
+from cachetools import Cache
 
 
-class TfProcessedDataset(AbstractVersionedDataSet):
+class TfImageProcessed(AbstractVersionedDataSet):
 
     DEFAULT_LOAD_ARGS = {
 
@@ -19,8 +20,9 @@ class TfProcessedDataset(AbstractVersionedDataSet):
 
     }  # type: Dict[str, Any]
 
-    def __init__(self, folderpath: str, load_args: Dict[str, Any], save_args: Dict[str, Any]):
+    def __init__(self, folderpath: str, load_args: Dict[str, Any] = None, save_args: Dict[str, Any] = None):
         self._version = None
+        self._version_cache = Cache(maxsize=2)
         self._folderpath = folderpath
         # Handle default load arguments
         self._load_args = deepcopy(self.DEFAULT_LOAD_ARGS)
@@ -55,4 +57,4 @@ class TfProcessedDataset(AbstractVersionedDataSet):
 
     def _describe(self) -> Dict[str, Any]:
         """Returns a dict that describes the attributes of the dataset."""
-        return dict(folderpath=self._folderpath, load_args=self._load_args, save_args=self._save_args)
+        return dict(folderpath=self._folderpath)

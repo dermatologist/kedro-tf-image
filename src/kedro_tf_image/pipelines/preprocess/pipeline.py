@@ -52,7 +52,7 @@ def create_folder_pipeline(**kwargs):   # input = input and output = output
                     node(
                         autotune,
                         "imagefolder",
-                        "datasetinmemory",
+                        "processeddataset",
                         name="folder"
                     ),
                     ])
