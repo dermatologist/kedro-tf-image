@@ -66,6 +66,21 @@ dermatogram:
   type: kedro.extras.datasets.matplotlib.MatplotlibWriter
   filepath: data/07_model_output/dermatogram
 ```
+
+## Create PartitionedDataset explicitly if different preprocessor is required. defaults to ResNet50
+
+```
+        dataset = {
+            "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
+            "preprocess_input": preprocess_input,
+            "imagedim": 224
+        }
+        path = 'data/01_raw/imageset'
+        filename_suffix = ".jpg"
+        data_set = PartitionedDataSet(
+            dataset=dataset, path=path, filename_suffix=filename_suffix)
+```
+
 ## Overview
 
 This is your new Kedro project, which was generated using `Kedro 0.17.3`.
