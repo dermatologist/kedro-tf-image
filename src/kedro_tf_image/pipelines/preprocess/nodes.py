@@ -184,3 +184,8 @@ def standardize(datasets: Tuple) -> Tuple:
     train_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
     val_ds = val_ds.map(lambda x, y: (normalization_layer(x), y))
     return(train_ds, val_ds)
+
+def autotune_standardize(datasets: Tuple) -> Tuple:
+    datasets = autotune(datasets)
+    datasets = standardize(datasets)
+    return datasets   # (train_ds, val_ds)

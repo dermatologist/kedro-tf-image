@@ -30,4 +30,6 @@ This is a boilerplate pipeline 'preprocess'
 generated using Kedro 0.17.3
 """
 
-from .pipeline import create_pipeline  # NOQA
+from .pipeline import create_download_pipeline
+from .pipeline import create_folder_pipeline
+from .pipeline import create_multilabel_pipeline

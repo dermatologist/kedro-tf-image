@@ -46,12 +46,11 @@ example_iris_data:
   type: pandas.CSVDataSet
   filepath: data/01_raw/iris.csv
 
-
+# SHOULD PASS preprocessor_input  (Defaults to ResNet50)
 imageset:
   type: PartitionedDataSet
   dataset: {
       "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-      "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
       "imagedim": 224
   }
   path: data/01_raw/imageset
@@ -64,12 +63,21 @@ skintype_data:
 imagefolder:
   type: kedro_tf_image.extras.datasets.tf_image_folder.TfImageFolder
   folderpath: "/home/a/archer/beapen/scratch/dermnet/train/rosacea-pd/tf"
+  imagedim: 224
   load_args: {
     "validation_split": 0.2,
     "seed": 123,
-    "image_size": (224, 224),
-    "batch_size": 1
+    "batch_size": 1,
   }
+
+processeddataset:
+  type: kedro_tf_image.extras.datasets.tf_image_processed.TfImageProcessed
+  folderpath: data/02_intermediate/
+
+
+datasetinmemory:
+  type: MemoryDataSet
+  copy_mode: assign
 
 dgacne:
   type: PartitionedDataSet

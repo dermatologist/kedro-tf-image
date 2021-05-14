@@ -31,8 +31,7 @@ from typing import Dict
 
 from kedro.pipeline import Pipeline
 
-from kedro_tf_image.pipelines import data_engineering as de
-from kedro_tf_image.pipelines import data_science as ds
+
 from kedro_tf_image.pipelines import preprocess as preprocess
 
 
@@ -43,11 +42,15 @@ def register_pipelines() -> Dict[str, Pipeline]:
         A mapping from a pipeline name to a ``Pipeline`` object.
 
     """
-    data_engineering_pipeline = de.create_pipeline()
-    data_science_pipeline = ds.create_pipeline()
-    preprocess_pipeline = preprocess.create_pipeline()
+
+    download = preprocess.create_download_pipeline(
+        input="skintype_data", output="imageset") #input is csv
+    folder = preprocess.create_folder_pipeline(
+        input="imagefolder", output="processeddataset")
+    multilabel = preprocess.create_multilabel_pipeline(input="imageset", output="processeddataset")
+
     return {
-        "de": data_engineering_pipeline,
-        "ds": data_science_pipeline,
-        "__default__": preprocess_pipeline,
+        "download": download,
+        "multilabel": multilabel,
+        "__default__": folder,
     }
