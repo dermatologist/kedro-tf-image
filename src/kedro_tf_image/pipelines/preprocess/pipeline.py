@@ -40,7 +40,7 @@ def create_download_pipeline(**kwargs):   # input = input and output = output
     return Pipeline([
                     node(
                         load_data_from_url, # Optional parameter delay, defaults to 3 seconds between each call
-                        ["skintype_data"],
+                        "skintype_data",
                         "imageset",
                         name="download"
                     ),
@@ -51,7 +51,7 @@ def create_folder_pipeline(**kwargs):   # input = input and output = output
     return Pipeline([
                     node(
                         autotune,
-                        ["imagefolder"],
+                        "imagefolder",
                         "datasetinmemory",
                         name="folder"
                     ),
@@ -62,20 +62,20 @@ def create_multilabel_pipeline(**kwargs):   # input = input and output = output
     return Pipeline([
                     node(
                         load_data_from_patitioned_dataset,
-                        ["imageset"],
-                        "from_partitined_reader",
+                        "imageset",
+                        "datasetinmemory",
                         name="read_partitioned_data"
                     ),
                     node(
                         get_tf_datasets,
-                        ["from_partitined_reader", "parameters"],
-                        "tf_datasets",
+                        ["datasetinmemory", "parameters"],
+                        "datasetinmemory2",
                         name="create_datasets"
                     ),
                     node(
                         autotune,
-                        ["tf_datasets"],
-                        "output",
+                        "datasetinmemory2",
+                        "datasetinmemory3",
                         name="multilabel"
                     ),
                     ])

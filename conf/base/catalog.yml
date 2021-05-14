@@ -46,12 +46,11 @@ example_iris_data:
   type: pandas.CSVDataSet
   filepath: data/01_raw/iris.csv
 
-
+# SHOULD PASS preprocessor_input  (Defaults to ResNet50)
 imageset:
   type: PartitionedDataSet
   dataset: {
       "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-      "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
       "imagedim": 224
   }
   path: data/01_raw/imageset
@@ -72,6 +71,14 @@ imagefolder:
   }
 
 datasetinmemory:
+  type: MemoryDataSet
+  copy_mode: assign
+
+datasetinmemory2:
+  type: MemoryDataSet
+  copy_mode: assign
+
+datasetinmemory3:
   type: MemoryDataSet
   copy_mode: assign
 
