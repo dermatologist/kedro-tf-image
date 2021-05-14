@@ -36,33 +36,35 @@ from kedro.pipeline import Pipeline, node
 from kedro_tf_image.pipelines.preprocess.nodes import autotune, autotune_standardize, get_tf_datasets, load_data_from_patitioned_dataset, load_data_from_url
 
 
-def create_download_pipeline(**kwargs):   # input = input and output = output
+# input = input and output = output
+def create_download_pipeline(input="csvfilewithurls", output="imageset", **kwargs):
     return Pipeline([
                     node(
                         load_data_from_url, # Optional parameter delay, defaults to 3 seconds between each call
-                        "skintype_data",
-                        "imageset",
-                        name="download"
+                        input,
+                        output,
+                        name="download_pipeline"
                     ),
     ])
 
 
-def create_folder_pipeline(**kwargs):   # input = input and output = output
+def create_folder_pipeline(input="imagefolder", output="processeddataset", **kwargs):   # input = input and output = output
     return Pipeline([
                     node(
-                        autotune,
-                        "imagefolder",
-                        "processeddataset",
-                        name="folder"
+                        autotune_standardize,
+                        input,
+                        output,
+                        name="folder_pipeline"
                     ),
                     ])
 
 
-def create_multilabel_pipeline(**kwargs):   # input = input and output = output
+# input = input and output = output
+def create_multilabel_pipeline(input="imageset", output="processeddataset", **kwargs):
     return Pipeline([
                     node(
                         load_data_from_patitioned_dataset,
-                        "imageset",
+                        input,
                         "data_from_patitioned_dataset",
                         name="read_partitioned_data"
                     ),
@@ -75,7 +77,7 @@ def create_multilabel_pipeline(**kwargs):   # input = input and output = output
                     node(
                         autotune_standardize,
                         "datasetinmemory",
-                        "processeddataset",
-                        name="multilabel"
+                        output,
+                        name="multilabel_pipeline"
                     ),
                     ])

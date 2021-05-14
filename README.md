@@ -1,5 +1,71 @@
 # Kedro TF Image
 
+
+## How to use
+```
+    download = preprocess.create_download_pipeline(
+        input="skintype_data", output="imageset") #input is csv
+    folder = preprocess.create_folder_pipeline(
+        input="imagefolder", output="processeddataset")
+    multilabel = preprocess.create_multilabel_pipeline(input="imageset", output="processeddataset")
+
+```
+## Catalog
+
+### datasetinmemory is required
+```
+# SHOULD PASS preprocessor_input  (Defaults to ResNet50)
+imageset:
+  type: PartitionedDataSet
+  dataset: {
+      "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
+      "imagedim": 224
+  }
+  path: data/01_raw/imageset
+  filename_suffix: ".jpg"
+
+skintype_data:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/skintype.csv
+
+imagefolder:
+  type: kedro_tf_image.extras.datasets.tf_image_folder.TfImageFolder
+  folderpath: "/home/a/archer/beapen/scratch/dermnet/train/rosacea-pd/tf"
+  imagedim: 224
+  load_args: {
+    "validation_split": 0.2,
+    "seed": 123,
+    "batch_size": 1,
+  }
+
+processeddataset:
+  type: kedro_tf_image.extras.datasets.tf_image_processed.TfImageProcessed
+  folderpath: data/02_intermediate/
+
+
+datasetinmemory:
+  type: MemoryDataSet
+  copy_mode: assign
+
+dgacne:
+  type: PartitionedDataSet
+  dataset: kedro_tf_image.extras.datasets.tf_image_generic.TfImageGeneric
+  path: data/01_raw/acne
+  filename_suffix: ".jpg"
+
+tfmodel:
+  type: tensorflow.TensorFlowModelDataset
+  filepath: data/06_models/f7d2b8ca1f18b668d5ee58fb3112ff5c2850e976
+  versioned: false
+
+dgcluster:
+  type: kedro.extras.datasets.matplotlib.MatplotlibWriter
+  filepath: data/07_model_output/cluster
+
+dermatogram:
+  type: kedro.extras.datasets.matplotlib.MatplotlibWriter
+  filepath: data/07_model_output/dermatogram
+```
 ## Overview
 
 This is your new Kedro project, which was generated using `Kedro 0.17.3`.

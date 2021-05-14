@@ -43,9 +43,11 @@ def register_pipelines() -> Dict[str, Pipeline]:
 
     """
 
-    download = preprocess.create_download_pipeline()
-    folder = preprocess.create_folder_pipeline()
-    multilabel = preprocess.create_multilabel_pipeline()
+    download = preprocess.create_download_pipeline(
+        input="skintype_data", output="imageset") #input is csv
+    folder = preprocess.create_folder_pipeline(
+        input="imagefolder", output="processeddataset")
+    multilabel = preprocess.create_multilabel_pipeline(input="imageset", output="processeddataset")
 
     return {
         "download": download,

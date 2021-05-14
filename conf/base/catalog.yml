@@ -79,14 +79,6 @@ datasetinmemory:
   type: MemoryDataSet
   copy_mode: assign
 
-datasetinmemory2:
-  type: MemoryDataSet
-  copy_mode: assign
-
-datasetinmemory3:
-  type: MemoryDataSet
-  copy_mode: assign
-
 dgacne:
   type: PartitionedDataSet
   dataset: kedro_tf_image.extras.datasets.tf_image_generic.TfImageGeneric
