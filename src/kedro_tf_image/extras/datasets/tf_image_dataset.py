@@ -15,6 +15,7 @@ import numpy as np
 # for loading/processing the images
 from tensorflow.keras.preprocessing.image import load_img
 from tensorflow.keras.preprocessing.image import save_img
+from kedro.utils import load_obj
 from kedro.extras.datasets.pillow.image_dataset import ImageDataSet
 from tensorflow.keras.applications.resnet50 import preprocess_input
 # The following is supplied as callable and defined in the catalog.yml
@@ -47,11 +48,11 @@ class TfImageDataSet(AbstractVersionedDataSet):
     # These should be supplied in the catalog
     def __init__(self,
                  filepath: str,
+                 preprocess_input: str,  # defaults to ResNet50 preprocessor
                  save_args: Dict[str, Any] = None,
                  version: Version = None,
                  credentials: Dict[str, Any] = None,
                  fs_args: Dict[str, Any] = None,
-                 preprocess_input: Callable = preprocess_input, #defaults to ResNet50 preprocessor
                  imagedim: int = 224): #defaults to ResNet50 dim
         """Creates a new instance of ImageDataSet to load / save image data for given filepath.
 
@@ -85,7 +86,8 @@ class TfImageDataSet(AbstractVersionedDataSet):
         _fs_open_args_save.setdefault("mode", "wb")
         self._fs_open_args_load = _fs_open_args_load
         self._fs_open_args_save = _fs_open_args_save
-        self._preprocess_input = preprocess_input
+        self._preprocess_input = load_obj(
+            preprocess_input, "tensorflow.keras.applications.resnet50.preprocess_input") # second argument is the default
         self._imagedim = imagedim
 
     def _load(self) -> np.ndarray:

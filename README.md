@@ -14,12 +14,13 @@
 
 ### datasetinmemory is required
 ```
-# SHOULD PASS preprocessor_input  (Defaults to ResNet50)
+
 imageset:
   type: PartitionedDataSet
   dataset: {
       "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-      "imagedim": 224
+      "imagedim": 224,
+      "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input"
   }
   path: data/01_raw/imageset
   filename_suffix: ".jpg"
@@ -32,11 +33,10 @@ imagefolder:
   type: kedro_tf_image.extras.datasets.tf_image_folder.TfImageFolder
   folderpath: "/home/a/archer/beapen/scratch/dermnet/train/rosacea-pd/tf"
   imagedim: 224
-  load_args: {
-    "validation_split": 0.2,
-    "seed": 123,
-    "batch_size": 1,
-  }
+  load_args:
+    validation_split: 0.2
+    seed: 123
+    batch_size: 1
 
 processeddataset:
   type: kedro_tf_image.extras.datasets.tf_image_processed.TfImageProcessed
@@ -67,19 +67,6 @@ dermatogram:
   filepath: data/07_model_output/dermatogram
 ```
 
-## Create PartitionedDataset explicitly if different preprocessor is required. defaults to ResNet50
-
-```
-        dataset = {
-            "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-            "preprocess_input": preprocess_input,
-            "imagedim": 224
-        }
-        path = 'data/01_raw/imageset'
-        filename_suffix = ".jpg"
-        data_set = PartitionedDataSet(
-            dataset=dataset, path=path, filename_suffix=filename_suffix)
-```
 
 ## Overview
 

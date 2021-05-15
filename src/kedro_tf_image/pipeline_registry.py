@@ -52,5 +52,6 @@ def register_pipelines() -> Dict[str, Pipeline]:
     return {
         "download": download,
         "multilabel": multilabel,
+        "folder": folder,
         "__default__": folder,
     }
