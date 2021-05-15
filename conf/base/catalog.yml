@@ -64,11 +64,10 @@ imagefolder:
   type: kedro_tf_image.extras.datasets.tf_image_folder.TfImageFolder
   folderpath: "/home/a/archer/beapen/scratch/dermnet/train/rosacea-pd/tf"
   imagedim: 224
-  load_args: {
-    "validation_split": 0.2,
-    "seed": 123,
-    "batch_size": 1,
-  }
+  load_args:
+    validation_split: 0.2
+    seed: 123
+    batch_size: 1
 
 processeddataset:
   type: kedro_tf_image.extras.datasets.tf_image_processed.TfImageProcessed
