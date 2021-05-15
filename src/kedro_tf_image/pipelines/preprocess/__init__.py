@@ -33,3 +33,4 @@ generated using Kedro 0.17.3
 from .pipeline import create_download_pipeline
 from .pipeline import create_folder_pipeline
 from .pipeline import create_multilabel_pipeline
+from .pipeline import create_passon_pipeline

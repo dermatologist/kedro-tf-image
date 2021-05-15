@@ -8,6 +8,7 @@
     folder = preprocess.create_folder_pipeline(
         input="imagefolder", output="processeddataset")
     multilabel = preprocess.create_multilabel_pipeline(input="imageset", output="processeddataset")
+    passon = preprocess.create_passon_pipeline(input="processeddataset", output="memorydataset")
 
 ```
 ## Catalog
