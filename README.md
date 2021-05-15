@@ -14,12 +14,13 @@
 
 ### datasetinmemory is required
 ```
-# SHOULD PASS preprocessor_input  (Defaults to ResNet50)
+
 imageset:
   type: PartitionedDataSet
   dataset: {
       "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-      "imagedim": 224
+      "imagedim": 224,
+      "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input"
   }
   path: data/01_raw/imageset
   filename_suffix: ".jpg"
