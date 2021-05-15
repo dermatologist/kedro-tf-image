@@ -38,9 +38,11 @@ imagefolder:
     seed: 123
     batch_size: 1
 
+
 processeddataset:
   type: kedro_tf_image.extras.datasets.tf_image_processed.TfImageProcessed
   folderpath: data/02_intermediate/
+  imagedim: 224
 
 
 datasetinmemory:

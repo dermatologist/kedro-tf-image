@@ -29,10 +29,9 @@ class TfImageGeneric(AbstractVersionedDataSet):
 
     DEFAULT_SAVE_ARGS = {}
     DEFAULT_LOAD_ARGS = {
-        'imagedim': 224,
     }
 
-    def __init__(self, filepath: str, load_args: Dict[str, Any] = {}, save_args: Dict[str, Any] = {}):
+    def __init__(self, filepath: str, imagedim: int = 224, load_args: Dict[str, Any] = {}, save_args: Dict[str, Any] = {}):
         """Creates a new instance of ImageDataSet to load / save image data for given filepath.
 
         Args:
@@ -44,6 +43,7 @@ class TfImageGeneric(AbstractVersionedDataSet):
         self._filepath = PurePosixPath(path)
         self._fs = fsspec.filesystem(self._protocol)
         self._version = None
+        self._imagedim = imagedim
         # Handle default load arguments
         self._load_args = deepcopy(self.DEFAULT_LOAD_ARGS)
         if load_args is not None:
@@ -65,7 +65,7 @@ class TfImageGeneric(AbstractVersionedDataSet):
         np_image = np.array(img)
         # reshape the data for the model reshape(num_of_samples, dim 1, dim 2, channels)
         reshaped_img = np_image.reshape(
-            1, self._load_args['imagedim'], self._load_args['imagedim'], 3)
+            1, self._imagedim, self._imagedim, 3)
         # prepare image for model
         imgx = preprocess_input(reshaped_img)
         # get the feature vector

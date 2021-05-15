@@ -62,8 +62,6 @@ def project_context():
 # and should be replaced with the ones testing the project
 # functionality
 class TestProjectContext:
-    def test_package_name(self, project_context):
-        assert project_context.package_name == "kedro_tf_image"
 
     # def test_csv_read(self, project_context):
     #     data_set = CSVDataSet(filepath="data/01_raw/skintype.csv")
@@ -122,15 +120,13 @@ class TestProjectContext:
         filepath = "data/01_raw/imageset/_cat_black_white_15.jpg"
         load_args = {
             "target_size": (224, 224),
-            "imagedim": 224
         }
-        data_set = TfImageGeneric(filepath=filepath, load_args=load_args)
-        assert data_set is not None
+        data_set = TfImageGeneric(filepath=filepath, imagedim=224, load_args=load_args)
+        data = data_set.load()
+        assert data is not None
 
     def test_load_dataset(self, project_context):
         folderpath = "data/02_intermediate/"
-        load_args = {
-        }
-        data_set = TfImageProcessed(folderpath=folderpath, load_args=load_args)
-        print(data_set.release())
-        assert data_set is not None
+        data_set = TfImageProcessed(folderpath=folderpath, imagedim=224)
+        data = data_set.load()
+        assert data is not None
