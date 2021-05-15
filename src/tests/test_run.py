@@ -47,6 +47,8 @@ from kedro.io import PartitionedDataSet
 from tensorflow.keras.applications.resnet50 import preprocess_input
 from kedro_tf_image.extras.datasets.tf_image_folder import TfImageFolder
 from kedro_tf_image.extras.datasets.tf_image_generic import TfImageGeneric
+from kedro_tf_image.extras.datasets.tf_image_processed import TfImageProcessed
+
 
 @pytest.fixture
 def project_context():
@@ -71,7 +73,7 @@ class TestProjectContext:
     def test_image_read(self, project_context):
         dataset = {
             "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-            "preprocess_input": preprocess_input,
+            "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
             "imagedim": 224
         }
         path = 'data/01_raw/imageset'
@@ -85,7 +87,7 @@ class TestProjectContext:
     def test_tf_dataset(self, project_context):
         dataset = {
             "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-            "preprocess_input": preprocess_input,
+            "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
             "imagedim": 224
         }
         path = 'data/01_raw/imageset'
@@ -123,4 +125,12 @@ class TestProjectContext:
             "imagedim": 224
         }
         data_set = TfImageGeneric(filepath=filepath, load_args=load_args)
+        assert data_set is not None
+
+    def test_load_dataset(self, project_context):
+        folderpath = "data/02_intermediate/"
+        load_args = {
+        }
+        data_set = TfImageProcessed(folderpath=folderpath, load_args=load_args)
+        print(data_set.release())
         assert data_set is not None
