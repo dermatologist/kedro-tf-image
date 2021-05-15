@@ -189,3 +189,7 @@ def autotune_standardize(datasets: Tuple) -> Tuple:
     datasets = autotune(datasets)
     datasets = standardize(datasets)
     return datasets   # (train_ds, val_ds)
+
+
+def passon(datasets: Tuple) -> Tuple:
+    return datasets

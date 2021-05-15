@@ -47,6 +47,8 @@ from kedro.io import PartitionedDataSet
 from tensorflow.keras.applications.resnet50 import preprocess_input
 from kedro_tf_image.extras.datasets.tf_image_folder import TfImageFolder
 from kedro_tf_image.extras.datasets.tf_image_generic import TfImageGeneric
+from kedro_tf_image.extras.datasets.tf_image_processed import TfImageProcessed
+
 
 @pytest.fixture
 def project_context():
@@ -60,8 +62,6 @@ def project_context():
 # and should be replaced with the ones testing the project
 # functionality
 class TestProjectContext:
-    def test_package_name(self, project_context):
-        assert project_context.package_name == "kedro_tf_image"
 
     # def test_csv_read(self, project_context):
     #     data_set = CSVDataSet(filepath="data/01_raw/skintype.csv")
@@ -71,7 +71,7 @@ class TestProjectContext:
     def test_image_read(self, project_context):
         dataset = {
             "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-            "preprocess_input": preprocess_input,
+            "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
             "imagedim": 224
         }
         path = 'data/01_raw/imageset'
@@ -85,7 +85,7 @@ class TestProjectContext:
     def test_tf_dataset(self, project_context):
         dataset = {
             "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-            "preprocess_input": preprocess_input,
+            "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
             "imagedim": 224
         }
         path = 'data/01_raw/imageset'
@@ -120,7 +120,13 @@ class TestProjectContext:
         filepath = "data/01_raw/imageset/_cat_black_white_15.jpg"
         load_args = {
             "target_size": (224, 224),
-            "imagedim": 224
         }
-        data_set = TfImageGeneric(filepath=filepath, load_args=load_args)
-        assert data_set is not None
+        data_set = TfImageGeneric(filepath=filepath, imagedim=224, load_args=load_args)
+        data = data_set.load()
+        assert data is not None
+
+    def test_load_dataset(self, project_context):
+        folderpath = "data/02_intermediate/"
+        data_set = TfImageProcessed(folderpath=folderpath, imagedim=224)
+        data = data_set.load()
+        assert data is not None

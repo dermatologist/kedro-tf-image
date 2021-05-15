@@ -8,6 +8,7 @@
     folder = preprocess.create_folder_pipeline(
         input="imagefolder", output="processeddataset")
     multilabel = preprocess.create_multilabel_pipeline(input="imageset", output="processeddataset")
+    passon = preprocess.create_passon_pipeline(input="processeddataset", output="memorydataset")
 
 ```
 ## Catalog
@@ -38,9 +39,11 @@ imagefolder:
     seed: 123
     batch_size: 1
 
+
 processeddataset:
   type: kedro_tf_image.extras.datasets.tf_image_processed.TfImageProcessed
   folderpath: data/02_intermediate/
+  imagedim: 224
 
 
 datasetinmemory:

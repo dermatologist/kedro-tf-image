@@ -20,7 +20,7 @@ class TfImageProcessed(AbstractVersionedDataSet):
 
     }  # type: Dict[str, Any]
 
-    def __init__(self, folderpath: str, load_args: Dict[str, Any] = None, save_args: Dict[str, Any] = None):
+    def __init__(self, folderpath: str, imagedim: int = 224, load_args: Dict[str, Any] = None, save_args: Dict[str, Any] = None):
         self._version = None
         self._version_cache = Cache(maxsize=2)
         self._folderpath = folderpath
@@ -28,6 +28,10 @@ class TfImageProcessed(AbstractVersionedDataSet):
         self._load_args = deepcopy(self.DEFAULT_LOAD_ARGS)
         if load_args is not None:
             self._load_args.update(load_args)
+        if "element_spec" not in self._load_args:
+            spec = (tf.TensorSpec(shape=(None, imagedim, imagedim, 3), dtype=tf.float32, name=None),
+                    tf.TensorSpec(shape=(None,), dtype=tf.int32, name=None))
+            self._load_args['element_spec'] = spec
         # Handle default save arguments
         self._save_args = deepcopy(self.DEFAULT_SAVE_ARGS)
         if save_args is not None:
