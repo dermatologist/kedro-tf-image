@@ -46,7 +46,7 @@ with open("requirements.txt", "r", encoding="utf-8") as f:
 
 setup(
     name="kedro_tf_image",
-    version="0.3.0",
+    version="0.3.1",
     packages=find_packages(exclude=["tests"]),
     entry_points={"console_scripts": [entry_point]},
     install_requires=requires,
