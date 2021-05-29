@@ -42,6 +42,8 @@ import pandas as pd
 from tensorflow.python.data.ops.dataset_ops import AUTOTUNE
 from tensorflow.keras import layers
 
+import logging
+
 def load_data_from_url(data: pd.DataFrame, delay: int = 3, imagedim: int = 224) -> Dict[str, Any]:
     """Loads images from URLs in the csv
 
@@ -58,10 +60,13 @@ def load_data_from_url(data: pd.DataFrame, delay: int = 3, imagedim: int = 224) 
     """
     to_return = {}  # {'filename1': data1, 'filename2: data2} for PartitionedDataset
     for index, row in data.iterrows():
-        downloaded_data = read_url(row['url'], delay, imagedim)
-        # Example: _dog_black_white_1
-        filename = "_" + row['labels'].replace('|', '_') + "_" + str(index)
-        to_return[filename] = downloaded_data
+        try:
+            downloaded_data = read_url(row['url'], delay, imagedim)
+            # Example: _dog_black_white_1
+            filename = "_" + row['labels'].replace('|', '_') + "_" + str(index)
+            to_return[filename] = downloaded_data
+        except:
+            logging.info(row['url'] + " unavailable.")
     return to_return
 
 
