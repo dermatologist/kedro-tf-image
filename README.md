@@ -1,13 +1,13 @@
 # Kedro TF Image
-This package consists of few generalizable Kedro pipelines for TF-based image analysis.
+This package consists of Kedro pipelines for TF-based image analysis.
 
-* The download pipeline downloads online images defined in a csv file for multilabel classification. The csv format is:
+* The **download** pipeline downloads online images defined in a csv file for multilabel classification. The labels are added to the filename. The csv format is:
 ```
 id, url, labels
 1, https://somesite.com/someimage.jpg,dog|black|grey
 ```
-* The folder pipeline creates TF dataset from a folder of images with labels as subfolders.
-* The multilabel pipeline processes files downloaded by the 'download' pipeline and create a dataset with images as labels.
+* The **folder** pipeline creates TF dataset from a folder of images with labels as subfolders.
+* The **multilabel** pipeline processes files downloaded by the 'download' pipeline and create a dataset with images and labels. The labels are extracted from the filename.
 
 ## How to use
 ```
