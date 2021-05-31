@@ -8,6 +8,11 @@ id, url, labels
 ```
 * The **folder** pipeline creates TF dataset from a folder of images with labels as subfolders.
 * The **multilabel** pipeline processes files downloaded by the 'download' pipeline and create a dataset with images and labels. The labels are extracted from the filename.
+* Add labels in parameters.yml
+```
+master_labels: ["cat", "dog", "white", "black", "tan"]
+val_size: 0.2
+```
 
 ## How to use
 ```
@@ -18,10 +23,8 @@ id, url, labels
     multilabel = preprocess.create_multilabel_pipeline(input="imageset", output="processeddataset")
 
 ```
-### Example use for image classification
-* WIP
 ## How to install
-* WIP
+* pip install git+https://github.com/dermatologist/kedro-tf-image.git
 ## Catalog
 ### datasetinmemory is required
 ```
