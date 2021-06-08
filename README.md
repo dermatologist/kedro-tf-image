@@ -1,12 +1,12 @@
 # Kedro TF Image
-This package consists of Kedro pipelines for TF-based image analysis.
+This package consists of Kedro pipelines for preprocessing images for TensorFlow. I use it mostly for [CNN based Dermatology workflows.](https://skinhelpdesk.com)
 
 * The **download** pipeline downloads online images defined in a csv file for multilabel classification. The labels are added to the filename. The csv format is:
 ```
 id, url, labels
 1, https://somesite.com/someimage.jpg,dog|black|grey
 ```
-* The **folder** pipeline creates TF dataset from a folder of images with labels as subfolders.
+* The **folder** pipeline creates TensorFlow dataset from a folder of images with labels as subfolders.
 * The **multilabel** pipeline processes files downloaded by the 'download' pipeline and create a dataset with images and labels. The labels are extracted from the filename.
 * Add labels in parameters.yml
 ```
@@ -45,7 +45,7 @@ csvdata:
 
 imagefolder:
   type: kedro_tf_image.extras.datasets.tf_image_folder.TfImageFolder
-  folderpath: "/home/a/archer/beapen/scratch/dermnet/train/rosacea-pd/tf"
+  folderpath: "/path/to/images"
   imagedim: 224
   load_args:
     validation_split: 0.2
