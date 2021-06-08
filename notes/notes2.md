@@ -1,31 +1,18 @@
 # Kedro TF Image
-This package consists of Kedro pipelines for preprocessing images for TensorFlow. I use it mostly for [CNN based Dermatology workflows.](https://skinhelpdesk.com)
 
-* The **download** pipeline downloads online images defined in a csv file for multilabel classification. The labels are added to the filename. The csv format is:
-```
-id, url, labels
-1, https://somesite.com/someimage.jpg,dog|black|grey
-```
-* The **folder** pipeline creates TensorFlow dataset from a folder of images with labels as subfolders.
-* The **multilabel** pipeline processes files downloaded by the 'download' pipeline and create a dataset with images and labels. The labels are extracted from the filename.
-* Add labels in parameters.yml
-```
-master_labels: ["cat", "dog", "white", "black", "tan"]
-val_size: 0.2
-```
 
 ## How to use
 ```
     download = preprocess.create_download_pipeline(
-        input="csvdata", output="imageset") #input is csv
+        input="skintype_data", output="imageset") #input is csv
     folder = preprocess.create_folder_pipeline(
         input="imagefolder", output="processeddataset")
     multilabel = preprocess.create_multilabel_pipeline(input="imageset", output="processeddataset")
+    passon = preprocess.create_passon_pipeline(input="processeddataset", output="memorydataset")
 
 ```
-## How to install
-* pip install git+https://github.com/dermatologist/kedro-tf-image.git
 ## Catalog
+
 ### datasetinmemory is required
 ```
 
@@ -39,13 +26,13 @@ imageset:
   path: data/01_raw/imageset
   filename_suffix: ".jpg"
 
-csvdata:
+skintype_data:
   type: pandas.CSVDataSet
-  filepath: data/01_raw/csvfile.csv
+  filepath: data/01_raw/skintype.csv
 
 imagefolder:
   type: kedro_tf_image.extras.datasets.tf_image_folder.TfImageFolder
-  folderpath: "/path/to/images"
+  folderpath: "/home/a/archer/beapen/scratch/dermnet/train/rosacea-pd/tf"
   imagedim: 224
   load_args:
     validation_split: 0.2
@@ -58,11 +45,29 @@ processeddataset:
   folderpath: data/02_intermediate/
   imagedim: 224
 
-# This is required as copy_mode: assign is needed for TF datasets
+
 datasetinmemory:
   type: MemoryDataSet
   copy_mode: assign
 
+dgacne:
+  type: PartitionedDataSet
+  dataset: kedro_tf_image.extras.datasets.tf_image_generic.TfImageGeneric
+  path: data/01_raw/acne
+  filename_suffix: ".jpg"
+
+tfmodel:
+  type: tensorflow.TensorFlowModelDataset
+  filepath: data/06_models/f7d2b8ca1f18b668d5ee58fb3112ff5c2850e976
+  versioned: false
+
+dgcluster:
+  type: kedro.extras.datasets.matplotlib.MatplotlibWriter
+  filepath: data/07_model_output/cluster
+
+dermatogram:
+  type: kedro.extras.datasets.matplotlib.MatplotlibWriter
+  filepath: data/07_model_output/dermatogram
 ```
 
 
