@@ -64,6 +64,9 @@ datasetinmemory:
   copy_mode: assign
 
 ```
+## Author
+
+* [Bell Eapen](https://nuchange.ca) [![Twitter Follow](https://img.shields.io/twitter/follow/beapen?style=social)](https://twitter.com/beapen)
 
 
 ## Overview
