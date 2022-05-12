@@ -18,20 +18,25 @@ master_labels: ["cat", "dog", "white", "black", "tan"]
 val_size: 0.2
 ```
 
-## How to use
-
-```
-    download = preprocess.create_download_pipeline(
-        input="csvdata", output="imageset") #input is csv
-    folder = preprocess.create_folder_pipeline(
-        input="imagefolder", output="processeddataset")
-    multilabel = preprocess.create_multilabel_pipeline(input="imageset", output="processeddataset")
-
-```
 
 ## How to install
 
 - pip install git+https://github.com/dermatologist/kedro-tf-image.git
+
+## How to use
+
+```
+from kedro_tf_image.pipelines import preprocess
+
+download = preprocess.create_download_pipeline(
+        input="csvdata", output="imageset") #input is csv
+folder = preprocess.create_folder_pipeline(
+        input="imagefolder", output="processeddataset")
+multilabel = preprocess.create_multilabel_pipeline(input="imageset", output="processeddataset")
+ 
+# check output keys in the catalog below
+```
+
 
 ## Catalog
 
