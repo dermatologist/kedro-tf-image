@@ -33,7 +33,7 @@ generated using Kedro 0.17.3
 
 from kedro.pipeline import Pipeline, node
 
-from kedro_tf_image.pipelines.preprocess.nodes import autotune, autotune_standardize, get_tf_datasets, load_data_from_patitioned_dataset, load_data_from_url, passon
+from kedro_tf_image.pipelines.preprocess.nodes import autotune, autotune_standardize, get_tf_datasets, load_data_from_partitioned_dataset, load_data_from_url, passon
 
 
 # input = input and output = output
@@ -73,14 +73,14 @@ def create_passon_pipeline(input="imagefolder", output="datasetinmemory", **kwar
 def create_multilabel_pipeline(input="imageset", output="processeddataset", **kwargs):
     return Pipeline([
                     node(
-                        load_data_from_patitioned_dataset,
+                        load_data_from_partitioned_dataset,
                         input,
-                        "data_from_patitioned_dataset",
+                        "data_from_partitioned_dataset",
                         name="read_partitioned_data"
                     ),
                     node(
                         get_tf_datasets,
-                        ["data_from_patitioned_dataset", "parameters"],
+                        ["data_from_partitioned_dataset", "parameters"],
                         "datasetinmemory",  # requires copy_mode: assign
                         name="create_datasets"
                     ),

@@ -89,7 +89,33 @@ def read_url(url: str, delay, imagedim) -> np.ndarray:
         return cv2.cvtColor(res, cv2.COLOR_BGR2RGB)
 
 
-def load_data_from_patitioned_dataset(partitioned_input: Dict[str, Callable[[], Any]]) -> Dict[str, Any]:
+# https://github.com/faikaydin/medical-multimodal-with-transfer-learning/blob/master/image_preprocessing/image_preprocessing.ipynb
+def load_data_from_partitioned_dataset_with_filename_as_key(partitioned_input: Dict[str, Callable[[], Any]]) -> Dict[str, Any]:
+    """_summary_
+
+    Args:
+        partitioned_input (Dict[str, Callable[[], Any]]): _description_
+
+    Returns:
+        Dict[str, Any]: _description_
+
+    Usage:
+                    node(
+                        load_data_from_partitioned_dataset_with_filename_as_key,
+                        partitioned_dataset_in_catalog,
+                        "PickleDataset",
+                        name="read_partitioned_data"
+                    )
+    """
+    ids = []
+    img_data = []
+    for partition_key, partition_load_func in sorted(partitioned_input.items()):
+        ids.append(partition_key)
+        img_data.append(partition_load_func())
+    return dict(zip(ids, img_data))
+
+
+def load_data_from_partitioned_dataset(partitioned_input: Dict[str, Callable[[], Any]]) -> Dict[str, Any]:
     """Loads images and labels (from filename eg. _cat_white_tan_12.jpg) from a PartitionedDataset
 
     Returns

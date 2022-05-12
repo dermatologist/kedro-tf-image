@@ -42,7 +42,7 @@ from kedro.framework.context import KedroContext
 
 from kedro_tf_image.hooks import ProjectHooks
 from kedro.extras.datasets.pandas import CSVDataSet
-from kedro_tf_image.pipelines.preprocess.nodes import get_numeric_labels, get_tf_datasets, load_data_from_patitioned_dataset, load_data_from_url
+from kedro_tf_image.pipelines.preprocess.nodes import get_numeric_labels, get_tf_datasets, load_data_from_partitioned_dataset, load_data_from_url
 from kedro.io import PartitionedDataSet
 from tensorflow.keras.applications.resnet50 import preprocess_input
 from kedro_tf_image.extras.datasets.tf_image_folder import TfImageFolder
@@ -79,7 +79,8 @@ class TestProjectContext:
         data_set = PartitionedDataSet(
             dataset=dataset, path=path, filename_suffix=filename_suffix)
         reloaded = data_set.load()
-        data = load_data_from_patitioned_dataset(reloaded)  # TODO Change this to assert
+        data = load_data_from_partitioned_dataset(
+            reloaded)  # TODO Change this to assert
         assert data['_cat_white_tan_16']['labels'] == ['cat', 'white', 'tan']
 
     def test_tf_dataset(self, project_context):
@@ -93,7 +94,7 @@ class TestProjectContext:
         data_set = PartitionedDataSet(
             dataset=dataset, path=path, filename_suffix=filename_suffix)
         reloaded = data_set.load()
-        reloaded = load_data_from_patitioned_dataset(reloaded)
+        reloaded = load_data_from_partitioned_dataset(reloaded)
         (train_ds, val_ds) = get_tf_datasets(reloaded, params={'master_labels': [
             'cat', 'dog', 'white', 'black', 'tan'], 'val_size': 0.2})  # TODO Change this to assert
         for image, label in train_ds.take(1):
