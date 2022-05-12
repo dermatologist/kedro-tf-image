@@ -42,13 +42,15 @@ from kedro.framework.context import KedroContext
 
 from kedro_tf_image.hooks import ProjectHooks
 from kedro.extras.datasets.pandas import CSVDataSet
-from kedro_tf_image.pipelines.preprocess.nodes import get_numeric_labels, get_tf_datasets, load_data_from_partitioned_dataset, load_data_from_url
+from kedro_tf_image.pipelines.preprocess.nodes import get_numeric_labels, get_tf_datasets, \
+    load_data_from_partitioned_dataset, load_data_from_partitioned_dataset_with_filename_as_key, load_data_from_url, \
+    load_data_from_partitioned_dataset_with_filename_as_key
 from kedro.io import PartitionedDataSet
 from tensorflow.keras.applications.resnet50 import preprocess_input
 from kedro_tf_image.extras.datasets.tf_image_folder import TfImageFolder
 from kedro_tf_image.extras.datasets.tf_image_generic import TfImageGeneric
 from kedro_tf_image.extras.datasets.tf_image_processed import TfImageProcessed
-
+import numpy as np
 
 @pytest.fixture
 def project_context():
@@ -80,8 +82,24 @@ class TestProjectContext:
             dataset=dataset, path=path, filename_suffix=filename_suffix)
         reloaded = data_set.load()
         data = load_data_from_partitioned_dataset(
-            reloaded)  # TODO Change this to assert
-        assert data['_cat_white_tan_16']['labels'] == ['cat', 'white', 'tan']
+            reloaded)  
+        assert data['_chest_x_ray_1']['labels'] == ['chest', 'x', 'ray']
+
+
+    def test_image_pickle(self, project_context):
+        dataset = {
+            "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
+            "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
+            "imagedim": 224
+        }
+        path = 'data/01_raw/imageset'
+        filename_suffix = ".jpg"
+        data_set = PartitionedDataSet(
+            dataset=dataset, path=path, filename_suffix=filename_suffix)
+        reloaded = data_set.load()
+        data = load_data_from_partitioned_dataset_with_filename_as_key(
+            reloaded)
+        assert data['_chest_x_ray_1'].dtype == np.float32
 
     def test_tf_dataset(self, project_context):
         dataset = {
