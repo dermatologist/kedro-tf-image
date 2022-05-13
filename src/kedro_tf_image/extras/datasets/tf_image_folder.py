@@ -12,6 +12,20 @@ class TfImageFolder(AbstractVersionedDataSet):
     ::
 
         >>> TfImageFolder(filepath='/img/file/')
+
+
+    path/to/image_dir/
+    split_name/  # Ex: 'train'
+        label1/  # Ex: 'airplane' or '0015'
+        xxx.png
+        xxy.png
+        xxz.png
+        label2/
+        xxx.png
+        xxy.png
+        xxz.png
+    split_name/  # Ex: 'test'
+        ...
     """
     DEFAULT_LOAD_ARGS = {
 

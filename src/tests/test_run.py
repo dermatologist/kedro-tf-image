@@ -42,13 +42,15 @@ from kedro.framework.context import KedroContext
 
 from kedro_tf_image.hooks import ProjectHooks
 from kedro.extras.datasets.pandas import CSVDataSet
-from kedro_tf_image.pipelines.preprocess.nodes import get_numeric_labels, get_tf_datasets, load_data_from_patitioned_dataset, load_data_from_url
+from kedro_tf_image.pipelines.preprocess.nodes import get_numeric_labels, get_tf_datasets, \
+    load_data_from_partitioned_dataset, load_data_from_partitioned_dataset_with_filename_as_key, load_data_from_url, \
+    load_data_from_partitioned_dataset_with_filename_as_key
 from kedro.io import PartitionedDataSet
 from tensorflow.keras.applications.resnet50 import preprocess_input
 from kedro_tf_image.extras.datasets.tf_image_folder import TfImageFolder
 from kedro_tf_image.extras.datasets.tf_image_generic import TfImageGeneric
 from kedro_tf_image.extras.datasets.tf_image_processed import TfImageProcessed
-
+import numpy as np
 
 @pytest.fixture
 def project_context():
@@ -74,13 +76,30 @@ class TestProjectContext:
             "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
             "imagedim": 224
         }
-        path = 'data/01_raw/imageset'
+        path = 'data/01_raw/test_imageset'
         filename_suffix = ".jpg"
         data_set = PartitionedDataSet(
             dataset=dataset, path=path, filename_suffix=filename_suffix)
         reloaded = data_set.load()
-        data = load_data_from_patitioned_dataset(reloaded)  # TODO Change this to assert
-        assert data['_cat_white_tan_16']['labels'] == ['cat', 'white', 'tan']
+        data = load_data_from_partitioned_dataset(
+            reloaded)
+        assert data['_cat_lazy_sleep_1']['labels'] == ['cat', 'lazy', 'sleep']
+
+
+    def test_image_pickle(self, project_context):
+        dataset = {
+            "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
+            "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
+            "imagedim": 224
+        }
+        path = 'data/01_raw/test_imageset'
+        filename_suffix = ".jpg"
+        data_set = PartitionedDataSet(
+            dataset=dataset, path=path, filename_suffix=filename_suffix)
+        reloaded = data_set.load()
+        data = load_data_from_partitioned_dataset_with_filename_as_key(
+            reloaded)
+        assert data['_chest_x_ray_1'].dtype == np.float32
 
     def test_tf_dataset(self, project_context):
         dataset = {
@@ -88,14 +107,19 @@ class TestProjectContext:
             "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
             "imagedim": 224
         }
-        path = 'data/01_raw/imageset'
+        path = 'data/01_raw/test_imageset'
         filename_suffix = ".jpg"
         data_set = PartitionedDataSet(
             dataset=dataset, path=path, filename_suffix=filename_suffix)
         reloaded = data_set.load()
-        reloaded = load_data_from_patitioned_dataset(reloaded)
+        reloaded = load_data_from_partitioned_dataset(reloaded)
         (train_ds, val_ds) = get_tf_datasets(reloaded, params={'master_labels': [
             'cat', 'dog', 'white', 'black', 'tan'], 'val_size': 0.2})  # TODO Change this to assert
+
+        save_path = 'data/02_intermediate/test_imageset'
+        write_data_set = TfImageProcessed(folderpath=save_path)
+        write_data = (train_ds, val_ds)
+        write_data_set.save(write_data)
         for image, label in train_ds.take(1):
             assert image.numpy().shape == (1, 224, 224, 3)
 
@@ -105,7 +129,7 @@ class TestProjectContext:
         assert len(get_numeric_labels(labels, master_labels)) == 5
 
     def test_tf_folder(self, project_context):
-        folderpath = "/home/a/archer/beapen/scratch/dermnet/train/rosacea-pd/tf"
+        folderpath = "data/01_raw/test_imageset"
         load_args = {
             "validation_split": 0.2,
             "seed": 123,
@@ -117,16 +141,23 @@ class TestProjectContext:
             assert image.numpy().shape == (1, 224, 224, 3)
 
     def test_tf_generic(self, project_context):
-        filepath = "data/01_raw/imageset/_cat_black_white_15.jpg"
+        filepath = "data/01_raw/test_imageset/_cat_lazy_sleep_1.jpg"
         load_args = {
             "target_size": (224, 224),
         }
+        writepath = "data/02_intermediate/test_imageset/test.jpg"
+        save_args = {
+            "versioned": False,
+        }
         data_set = TfImageGeneric(filepath=filepath, imagedim=224, load_args=load_args)
+        write_data_set = TfImageGeneric(
+            filepath=writepath, imagedim=224, save_args=save_args)
         data = data_set.load()
+        write_data_set.save(data)
         assert data is not None
 
     def test_load_dataset(self, project_context):
-        folderpath = "data/02_intermediate/"
+        folderpath = "data/02_intermediate/test_imageset"
         data_set = TfImageProcessed(folderpath=folderpath, imagedim=224)
         data = data_set.load()
         assert data is not None
