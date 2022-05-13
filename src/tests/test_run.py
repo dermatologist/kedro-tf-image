@@ -76,14 +76,14 @@ class TestProjectContext:
             "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
             "imagedim": 224
         }
-        path = 'data/01_raw/imageset'
+        path = 'data/01_raw/test_imageset'
         filename_suffix = ".jpg"
         data_set = PartitionedDataSet(
             dataset=dataset, path=path, filename_suffix=filename_suffix)
         reloaded = data_set.load()
         data = load_data_from_partitioned_dataset(
-            reloaded)  
-        assert data['_chest_x_ray_1']['labels'] == ['chest', 'x', 'ray']
+            reloaded)
+        assert data['_cat_lazy_sleep_1']['labels'] == ['cat', 'lazy', 'sleep']
 
 
     def test_image_pickle(self, project_context):
@@ -92,7 +92,7 @@ class TestProjectContext:
             "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
             "imagedim": 224
         }
-        path = 'data/01_raw/imageset'
+        path = 'data/01_raw/test_imageset'
         filename_suffix = ".jpg"
         data_set = PartitionedDataSet(
             dataset=dataset, path=path, filename_suffix=filename_suffix)
@@ -107,7 +107,7 @@ class TestProjectContext:
             "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
             "imagedim": 224
         }
-        path = 'data/01_raw/imageset'
+        path = 'data/01_raw/test_imageset'
         filename_suffix = ".jpg"
         data_set = PartitionedDataSet(
             dataset=dataset, path=path, filename_suffix=filename_suffix)
@@ -124,7 +124,7 @@ class TestProjectContext:
         assert len(get_numeric_labels(labels, master_labels)) == 5
 
     def test_tf_folder(self, project_context):
-        folderpath = "/home/a/archer/beapen/scratch/dermnet/train/rosacea-pd/tf"
+        folderpath = "data/01_raw/test_imageset"
         load_args = {
             "validation_split": 0.2,
             "seed": 123,
@@ -136,7 +136,7 @@ class TestProjectContext:
             assert image.numpy().shape == (1, 224, 224, 3)
 
     def test_tf_generic(self, project_context):
-        filepath = "data/01_raw/imageset/_cat_black_white_15.jpg"
+        filepath = "data/01_raw/test_imageset/_cat_lazy_sleep_1.jpg"
         load_args = {
             "target_size": (224, 224),
         }
