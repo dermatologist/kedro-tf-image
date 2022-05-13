@@ -43,6 +43,7 @@ class TfImageGeneric(AbstractVersionedDataSet):
         self._filepath = PurePosixPath(path)
         self._fs = fsspec.filesystem(self._protocol)
         self._version = None
+        self._version_cache = {}
         self._imagedim = imagedim
         # Handle default load arguments
         self._load_args = deepcopy(self.DEFAULT_LOAD_ARGS)
@@ -75,7 +76,7 @@ class TfImageGeneric(AbstractVersionedDataSet):
         """Saves image data to the specified filepath."""
         # using get_filepath_str ensures that the protocol and path are appended correctly for different filesystems
         save_path = get_filepath_str(self._get_save_path(), self._protocol)
-        save_img(save_path, data, **self._save_args)
+        save_img(save_path, data[0], **self._save_args)
 
     def _describe(self) -> Dict[str, Any]:
         """Returns a dict that describes the attributes of the dataset."""
