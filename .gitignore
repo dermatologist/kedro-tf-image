@@ -22,6 +22,7 @@ logs/**
 # also keep the example dataset
 !data/01_raw/*.csv
 !data/01_raw/test_imageset/**
+!data/02_intermediate/test_imageset/test.jpg
 
 ##########################
 # Common files

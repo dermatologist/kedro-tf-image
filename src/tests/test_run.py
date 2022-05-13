@@ -115,6 +115,11 @@ class TestProjectContext:
         reloaded = load_data_from_partitioned_dataset(reloaded)
         (train_ds, val_ds) = get_tf_datasets(reloaded, params={'master_labels': [
             'cat', 'dog', 'white', 'black', 'tan'], 'val_size': 0.2})  # TODO Change this to assert
+
+        save_path = 'data/02_intermediate/test_imageset'
+        write_data_set = TfImageProcessed(folderpath=save_path)
+        write_data = (train_ds, val_ds)
+        write_data_set.save(write_data)
         for image, label in train_ds.take(1):
             assert image.numpy().shape == (1, 224, 224, 3)
 
@@ -140,12 +145,19 @@ class TestProjectContext:
         load_args = {
             "target_size": (224, 224),
         }
+        writepath = "data/02_intermediate/test_imageset/test.jpg"
+        save_args = {
+            "versioned": False,
+        }
         data_set = TfImageGeneric(filepath=filepath, imagedim=224, load_args=load_args)
+        write_data_set = TfImageGeneric(
+            filepath=writepath, imagedim=224, save_args=save_args)
         data = data_set.load()
+        write_data_set.save(data)
         assert data is not None
 
     def test_load_dataset(self, project_context):
-        folderpath = "data/02_intermediate/"
+        folderpath = "data/02_intermediate/test_imageset"
         data_set = TfImageProcessed(folderpath=folderpath, imagedim=224)
         data = data_set.load()
         assert data is not None
