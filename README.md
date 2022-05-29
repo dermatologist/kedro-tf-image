@@ -10,7 +10,7 @@ id, url, labels
 ```
 
 - The **folder** pipeline creates TensorFlow dataset from a folder of images with labels as subfolders.
-- The **multilabel** pipeline processes files downloaded by the 'download' pipeline and create a dataset with images and labels. The labels are extracted from the filename.
+- The **multilabel** pipeline processes files downloaded by the 'download' pipeline and create a dataset with images and labels. The labels are extracted from the filename. Example: _dog_black.jpg
 - Add labels in parameters.yml
 
 ```
