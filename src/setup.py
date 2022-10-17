@@ -52,7 +52,7 @@ setup(
     install_requires=requires,
     extras_require={
         "docs": [
-            "sphinx~=3.4.3",
+            "sphinx>=3.4.3,<5.4.0",
             "sphinx_rtd_theme==0.5.1",
             "nbsphinx==0.8.1",
             "nbstripout==0.3.3",
