@@ -24,11 +24,11 @@ class TfModelWeights(AbstractVersionedDataSet):
     """
     # class_num=2, input_shape=None, use_base_weights=True
     DEFAULT_LOAD_ARGS = {
-        "class_num": 2,
+        "class_num": 14,
         "input_shape": None,
         "use_base_weights": True,
     }  # type: Dict[str, Any]
-
+    DEFAULT_SAVE_ARGS = {}  # type: Dict[str, Any]
     def __init__(self, filepath: str, architecture: str = "DenseNet121", load_args: Dict[str, Any] = None, save_args: Dict[str, Any] = None):
         self._version = None
         self._version_cache = Cache(maxsize=2)
@@ -96,13 +96,13 @@ class TfModelWeights(AbstractVersionedDataSet):
 
     def _describe(self) -> Dict[str, Any]:
         """Returns a dict that describes the attributes of the dataset."""
-        return dict(folderpath=self._folderpath, architecture=self._architecture)
+        return dict(filepath=self._filepath, architecture=self._architecture)
 
     # https://www.kaggle.com/code/ashishpatel26/chexnet-radiologist-level-pneumonia-detection/notebook?utm_source=pocket_saves
     def get_model(self, weights_path=None, model_name="DenseNet121", **kwargs):
 
         # class_num=2, input_shape=None, use_base_weights=True
-        class_num = kwargs.get("class_num", 2)
+        class_num = kwargs.get("class_num", 14)
         input_shape = kwargs.get("input_shape", None)
         use_base_weights = kwargs.get("use_base_weights", True)
 

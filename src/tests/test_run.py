@@ -39,6 +39,7 @@ from pathlib import Path
 
 import pytest
 from kedro.framework.context import KedroContext
+from kedro_tf_image.extras.datasets.tf_model_weights import TfModelWeights
 
 from kedro_tf_image.hooks import ProjectHooks
 from kedro.extras.datasets.pandas import CSVDataSet
@@ -52,11 +53,23 @@ from kedro_tf_image.extras.datasets.tf_image_generic import TfImageGeneric
 from kedro_tf_image.extras.datasets.tf_image_processed import TfImageProcessed
 import numpy as np
 
+from kedro.framework.hooks import _create_hook_manager
+
+from kedro.framework.project import settings
+from kedro.config import ConfigLoader
+
 @pytest.fixture
-def project_context():
+def config_loader():
+    return ConfigLoader(conf_source=str(Path.cwd() / settings.CONF_SOURCE))
+
+
+@pytest.fixture
+def project_context(config_loader):
     return KedroContext(
         package_name="kedro_tf_image",
-        project_path=Path.cwd()
+        project_path=Path.cwd(),
+        config_loader=config_loader,
+        hook_manager=_create_hook_manager(),
     )
 
 
@@ -159,5 +172,15 @@ class TestProjectContext:
     def test_load_dataset(self, project_context):
         folderpath = "data/02_intermediate/test_imageset"
         data_set = TfImageProcessed(folderpath=folderpath, imagedim=224)
+        data = data_set.load()
+        assert data is not None
+
+    def test_tf_model_weights(self, project_context):
+        filepath = "data/03_primary/brucechou1983_CheXNet_Keras_0.3.0_weights.h5"
+        architecture = "DenseNet121"
+        load_args = {
+            "class_num": 14
+        }
+        data_set = TfModelWeights(filepath=filepath, architecture=architecture, load_args=load_args)
         data = data_set.load()
         assert data is not None
