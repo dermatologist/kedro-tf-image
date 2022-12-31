@@ -226,7 +226,7 @@ jupyterlab-server==2.17.0
     # via jupyterlab
 jupyterlab-widgets==3.0.5
     # via ipywidgets
-kedro==0.18.4
+kedro[pandas.CSVDataSet]==0.18.4
     # via -r /home/beapen/repos/kedro-tf-image/src/requirements.txt
 keras==2.11.0
     # via tensorflow
@@ -294,6 +294,7 @@ numpy==1.24.1
     #   matplotlib
     #   opencv-python
     #   opt-einsum
+    #   pandas
     #   tensorboard
     #   tensorflow
 oauthlib==3.2.2
@@ -315,6 +316,8 @@ packaging==22.0
     #   pytoolconfig
     #   qtpy
     #   tensorflow
+pandas==1.5.2
+    # via kedro
 pandocfilters==1.5.0
     # via nbconvert
 parso==0.8.3
@@ -400,6 +403,7 @@ python-dateutil==2.8.2
     #   arrow
     #   jupyter-client
     #   matplotlib
+    #   pandas
 python-json-logger==2.0.4
     # via jupyter-events
 python-slugify==7.0.0
@@ -407,7 +411,9 @@ python-slugify==7.0.0
 pytoolconfig[global]==1.2.4
     # via rope
 pytz==2022.7
-    # via babel
+    # via
+    #   babel
+    #   pandas
 pyyaml==6.0
     # via
     #   cookiecutter
