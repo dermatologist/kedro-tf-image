@@ -13,7 +13,7 @@ from keras.layers import Input
 from keras.layers.core import Dense
 from keras.models import Model
 
-class TfLoadWeights(AbstractVersionedDataSet):
+class TfModelWeights(AbstractVersionedDataSet):
 
     """_summary_
     _description_
