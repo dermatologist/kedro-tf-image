@@ -91,12 +91,8 @@ class TfLoadWeights(AbstractVersionedDataSet):
         model = self.get_model(self._filepath, self._architecture, **self._load_args)
         return model
 
-    def _save(self, data: Any) -> None:
-        """Saves the model to the specified location.
-        Args:
-            Not implemented
-        """
-        pass
+    def _save(self, model: Any) -> None:
+        model.save_weights(self._filepath)
 
     def _describe(self) -> Dict[str, Any]:
         """Returns a dict that describes the attributes of the dataset."""
