@@ -20,6 +20,7 @@ from tensorflow.keras.applications.resnet50 import preprocess_input
 class TfImageGeneric(AbstractVersionedDataSet):
     """``TfGenericImage`` loads / save image data from a given filepath as `numpy` array using Pillow.
 
+    @deprecated: Use :func:`kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet` instead.
     Example:
     ::
 
