@@ -77,3 +77,10 @@ processeddataset:
 datasetinmemory:
   type: MemoryDataSet
   copy_mode: assign
+
+chexnet_weights:
+  type: kedro_tf_image.extras.datasets.tf_model_weights.TfModelWeights
+  filepath: data/03_primary/brucechou1983_CheXNet_Keras_0.3.0_weights.h5
+  architecture: DenseNet121
+  load_args:
+    class_num: 14

@@ -175,12 +175,12 @@ class TestProjectContext:
         data = data_set.load()
         assert data is not None
 
-    # def test_tf_model_weights(self, project_context):
-    #     filepath = "data/03_primary/brucechou1983_CheXNet_Keras_0.3.0_weights.h5"
-    #     architecture = "DenseNet121"
-    #     load_args = {
-    #         "class_num": 14
-    #     }
-    #     data_set = TfModelWeights(filepath=filepath, architecture=architecture, load_args=load_args)
-    #     data = data_set.load()
-    #     assert data is not None
+    def test_tf_model_weights(self, project_context):
+        filepath = None
+        architecture = "DenseNet121"
+        load_args = {
+            "class_num": 14
+        }
+        data_set = TfModelWeights(filepath=filepath, architecture=architecture, load_args=load_args)
+        data = data_set.load()
+        assert data is not None
