@@ -83,8 +83,8 @@ datasetinmemory:
 
 * kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet - Load single images
 * kedro_tf_image.extras.datasets.tf_image_folder.TfImageFolder - Load a folder of images
-* kedro_tf_image.extras.datasets.tf_image_folder.TfModelWeights - Read model from weights (Ex: CheXnet)
-
+* kedro_tf_image.extras.datasets.tf_image_folder.TfModelWeights - Read model from weights (Ex: CheXnet with dim 14)
+(Use [create_classification_layer](src/kedro_tf_image/pipelines/preprocess/pipeline.py) to add a Dense layer of NCLASSES dim)
 ## Author
 
 - [Bell Eapen](https://nuchange.ca) [![Twitter Follow](https://img.shields.io/twitter/follow/beapen?style=social)](https://twitter.com/beapen)
