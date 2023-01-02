@@ -43,7 +43,7 @@ from kedro_tf_image.extras.datasets.tf_model_weights import TfModelWeights
 
 from kedro_tf_image.hooks import ProjectHooks
 from kedro.extras.datasets.pandas import CSVDataSet
-from kedro_tf_image.pipelines.preprocess.nodes import get_numeric_labels, get_tf_datasets, \
+from kedro_tf_image.pipelines.preprocess.nodes import add_layer, get_numeric_labels, get_tf_datasets, \
     load_data_from_partitioned_dataset, load_data_from_partitioned_dataset_with_filename_as_key, load_data_from_url, \
     load_data_from_partitioned_dataset_with_filename_as_key
 from kedro.io import PartitionedDataSet
@@ -183,4 +183,6 @@ class TestProjectContext:
         }
         data_set = TfModelWeights(filepath=filepath, architecture=architecture, load_args=load_args)
         data = data_set.load()
-        assert data is not None
+        conf_params = project_context.config_loader.get('**/preprocess.yml')
+        added_layer = add_layer(data,conf_params)
+        assert added_layer is not None

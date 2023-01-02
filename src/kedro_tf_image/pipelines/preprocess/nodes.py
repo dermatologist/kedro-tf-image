@@ -40,7 +40,7 @@ from urllib.request import urlopen
 import matplotlib.pyplot as plt
 import pandas as pd
 from tensorflow.python.data.ops.dataset_ops import AUTOTUNE
-from tensorflow.keras import layers
+from keras import layers, models
 
 import logging
 
@@ -224,3 +224,18 @@ def autotune_standardize(datasets: Tuple) -> Tuple:
 
 def passon(datasets: Tuple) -> Tuple:
     return datasets
+
+
+def add_layer(model: tf.keras.Model, parameters: Dict) -> tf.keras.Model:
+    """Adds a layer to a model
+
+    Args:
+        model (tf.keras.Model): [description]
+        layer (tf.keras.layers.Layer): [description]
+
+    Returns:
+        tf.keras.Model: [description]
+    """
+    output = layers.Dense(parameters['NCLASSES'], activation="softmax", name="DENSE_CLASSIFIER")(model.output)
+    _model = models.Model(model.input, output, name="Model_with_classifier")
+    return _model

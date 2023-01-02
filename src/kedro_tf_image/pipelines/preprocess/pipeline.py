@@ -33,7 +33,7 @@ generated using Kedro 0.17.3
 
 from kedro.pipeline import Pipeline, node
 
-from kedro_tf_image.pipelines.preprocess.nodes import autotune, autotune_standardize, get_tf_datasets, load_data_from_partitioned_dataset, load_data_from_url, passon
+from kedro_tf_image.pipelines.preprocess.nodes import add_layer, autotune_standardize, get_tf_datasets, load_data_from_partitioned_dataset, load_data_from_url, passon
 
 
 # input = input and output = output
@@ -89,5 +89,16 @@ def create_multilabel_pipeline(input="imageset", output="processeddataset", **kw
                         "datasetinmemory",
                         output,
                         name="multilabel_pipeline"
+                    ),
+                    ])
+
+def create_classification_layer(**kwargs):
+    return Pipeline([
+                    node(
+                        add_layer,
+                        inputs=["chexnet_weights", "parameters"],
+                        outputs="chexnet_model",
+                        name="add_classification_layer",
+                        tags=["chexnet"]
                     ),
                     ])
