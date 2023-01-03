@@ -96,7 +96,7 @@ def create_classification_layer(**kwargs):
     return Pipeline([
                     node(
                         add_layer,
-                        inputs=["chexnet_weights", "parameters"],
+                        inputs=["chexnet_weights", "params:add_layer"],
                         outputs="chexnet_model",
                         name="add_classification_layer",
                         tags=["chexnet"]

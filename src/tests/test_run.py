@@ -184,5 +184,5 @@ class TestProjectContext:
         data_set = TfModelWeights(filepath=filepath, architecture=architecture, load_args=load_args)
         data = data_set.load()
         conf_params = project_context.config_loader.get('**/preprocess.yml')
-        added_layer = add_layer(data,conf_params)
+        added_layer = add_layer(data,conf_params['add_layer'])
         assert added_layer is not None
