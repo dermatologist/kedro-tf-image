@@ -5,4 +5,5 @@
 # Link: https://kedro.readthedocs.io/en/stable/04_kedro_project_setup/02_configuration.html#parameters
 master_labels: ["cat", "dog", "white", "black", "tan"]
 val_size: 0.2
-NCLASSES: 1
+add_layer:
+  NCLASSES: 1
