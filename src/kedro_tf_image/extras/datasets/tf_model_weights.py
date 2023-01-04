@@ -1,10 +1,16 @@
 import importlib
 import os
+from pathlib import PurePosixPath
 from typing import Any, Dict, Tuple
 from copy import deepcopy
-
+import fsspec
 from kedro.io.core import (
+    PROTOCOL_DELIMITER,
     AbstractVersionedDataSet,
+    DataSetError,
+    Version,
+    get_filepath_str,
+    get_protocol_and_path,
 )
 import tensorflow as tf
 from cachetools import Cache
@@ -12,7 +18,8 @@ import importlib
 from keras.layers import Input
 from keras.layers.core import Dense
 from keras.models import Model
-
+import logging
+logger = logging.getLogger(__name__)
 class TfModelWeights(AbstractVersionedDataSet):
 
     """_summary_
@@ -29,16 +36,55 @@ class TfModelWeights(AbstractVersionedDataSet):
         "use_base_weights": True,
     }  # type: Dict[str, Any]
     DEFAULT_SAVE_ARGS = {}  # type: Dict[str, Any]
-    def __init__(self, filepath: str, architecture: str = "DenseNet121", load_args: Dict[str, Any] = None, save_args: Dict[str, Any] = None):
-        self._version = None
-        self._version_cache = Cache(maxsize=2)
+
+    def __init__(self, filepath: str,
+                architecture: str = "DenseNet121",
+                load_args: Dict[str, Any] = None,
+                save_args: Dict[str, Any] = None,
+                version: Version = None,
+                credentials: Dict[str, Any] = None,
+                fs_args: Dict[str, Any] = None,) -> None:
+
+        _fs_args = deepcopy(fs_args) or {}
+        _credentials = deepcopy(credentials) or {}
+        protocol = None
+        path = None
         self._filepath = filepath
-        self._architecture = architecture
-        # Handle default load arguments
+        if self._filepath:
+            protocol, path = get_protocol_and_path(filepath, version)
+        if protocol == "file":
+            _fs_args.setdefault("auto_mkdir", True)
+
+        self._protocol = protocol
+        self._storage_options = {**_credentials, **_fs_args}
+        self._fs = fsspec.filesystem(self._protocol, **self._storage_options)
+
+        if self._filepath:
+            super().__init__(
+                filepath=PurePosixPath(path),
+                version=version,
+                exists_function=self._fs.exists,
+                glob_function=self._fs.glob,
+            )
+
+        # Handle default load and save arguments
         self._load_args = deepcopy(self.DEFAULT_LOAD_ARGS)
         if load_args is not None:
             self._load_args.update(load_args)
+        self._save_args = deepcopy(self.DEFAULT_SAVE_ARGS)
+        if save_args is not None:
+            self._save_args.update(save_args)
+
+        if "storage_options" in self._save_args or "storage_options" in self._load_args:
+            logger.warning(
+                "Dropping 'storage_options' for %s, "
+                "please specify them under 'fs_args' or 'credentials'.",
+                self._filepath,
+            )
+            self._save_args.pop("storage_options", None)
+            self._load_args.pop("storage_options", None)
         ## Default models
+        self._architecture = architecture
         self._models = dict(
                 VGG16=dict(
                     input_shape=(224, 224, 3),
@@ -88,11 +134,23 @@ class TfModelWeights(AbstractVersionedDataSet):
             self._save_args.update(save_args)
 
     def _load(self) -> Tuple:
-        model = self.get_model(self._filepath, self._architecture, **self._load_args)
-        return model
+        if(self._filepath is None):
+            return self.get_model(self._filepath, self._architecture, **self._load_args)
+        else:
+            load_path = str(self._get_load_path())
+            if self._protocol == "file":
+                # file:// protocol seems to misbehave on Windows
+                # (<urlopen error file not on local host>),
+                # so we don't join that back to the filepath;
+                # storage_options also don't work with local paths
+                return self.get_model(load_path, self._architecture, **self._load_args)
+
+            load_path = f"{self._protocol}{PROTOCOL_DELIMITER}{load_path}"
+            return self.get_model(load_path, self._architecture, **self._load_args)
 
     def _save(self, model: Any) -> None:
-        model.save_weights(self._filepath)
+        save_path = get_filepath_str(self._get_save_path(), self._protocol)
+        model.save_weights(save_path, **self._save_args)
 
     def _describe(self) -> Dict[str, Any]:
         """Returns a dict that describes the attributes of the dataset."""
