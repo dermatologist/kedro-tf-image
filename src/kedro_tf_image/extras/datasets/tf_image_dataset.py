@@ -112,7 +112,8 @@ class TfImageDataSet(AbstractVersionedDataSet):
             with tf.io.gfile.GFile(load_path, "rb") as f:
                 buf = BytesIO(f.read())
                 img = load_img(buf, target_size=(self._imagedim, self._imagedim))
-        img = load_img(load_path, target_size=(self._imagedim, self._imagedim))
+        else:
+            img = load_img(load_path, target_size=(self._imagedim, self._imagedim))
         np_image = np.array(img)
         # reshape the data for the model reshape(num_of_samples, dim 1, dim 2, channels)
         reshaped_img = np_image.reshape(1, self._imagedim, self._imagedim, 3)
