@@ -108,7 +108,8 @@ class TfImageDataSet(AbstractVersionedDataSet):
             load_path = f"{self._protocol}{PROTOCOL_DELIMITER}{load_path}"
 
         if self._protocol == "gs":
-            load_path = tf.io.gfile.glob(load_path)
+            with tf.io.gfile.GFile(load_path) as f:
+                img = load_img(f, target_size=(self._imagedim, self._imagedim))
         img = load_img(load_path, target_size=(self._imagedim, self._imagedim))
         np_image = np.array(img)
         # reshape the data for the model reshape(num_of_samples, dim 1, dim 2, channels)
