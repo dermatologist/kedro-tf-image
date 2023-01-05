@@ -1,9 +1,12 @@
+from io import BytesIO
 from pathlib import PurePosixPath
 from typing import Any, Callable, Dict
 from copy import deepcopy
 
 from kedro.io.core import (
+    PROTOCOL_DELIMITER,
     AbstractVersionedDataSet,
+    DataSetError,
     Version,
     get_filepath_str,
     get_protocol_and_path,
@@ -12,6 +15,7 @@ from kedro.io.core import (
 import fsspec
 import numpy as np
 
+import tensorflow as tf
 # for loading/processing the images
 from tensorflow.keras.preprocessing.image import load_img
 from tensorflow.keras.preprocessing.image import save_img
@@ -96,9 +100,20 @@ class TfImageDataSet(AbstractVersionedDataSet):
         Returns:
             Data from the image file as a numpy array
         """
-        # using get_filepath_str ensures that the protocol and path are appended correctly for different filesystems
-        load_path = get_filepath_str(self._get_load_path(), self._protocol)
-        img = load_img(load_path, target_size=(self._imagedim, self._imagedim))
+        load_path = str(self._get_load_path())
+        if self._protocol != "file":
+            # file:// protocol seems to misbehave on Windows
+            # (<urlopen error file not on local host>),
+            # so we don't join that back to the filepath;
+            # storage_options also don't work with local paths
+            load_path = f"{self._protocol}{PROTOCOL_DELIMITER}{load_path}"
+
+        if self._protocol == "gs":
+            with tf.io.gfile.GFile(load_path, "rb") as f:
+                buf = BytesIO(f.read())
+                img = load_img(buf, target_size=(self._imagedim, self._imagedim))
+        else:
+            img = load_img(load_path, target_size=(self._imagedim, self._imagedim))
         np_image = np.array(img)
         # reshape the data for the model reshape(num_of_samples, dim 1, dim 2, channels)
         reshaped_img = np_image.reshape(1, self._imagedim, self._imagedim, 3)
@@ -117,3 +132,21 @@ class TfImageDataSet(AbstractVersionedDataSet):
     def _describe(self) -> Dict[str, Any]:
         """Returns a dict that describes the attributes of the dataset."""
         return dict(filepath=self._filepath, protocol=self._protocol, preprocess_input=self._preprocess_input)
+
+
+    def _exists(self) -> bool:
+        try:
+            load_path = get_filepath_str(self._get_load_path(), self._protocol)
+        except DataSetError:
+            return False
+
+        return self._fs.exists(load_path)
+
+    def _release(self) -> None:
+        super()._release()
+        self._invalidate_cache()
+
+    def _invalidate_cache(self) -> None:
+        """Invalidate underlying filesystem caches."""
+        filepath = get_filepath_str(self._filepath, self._protocol)
+        self._fs.invalidate_cache(filepath)

@@ -2,7 +2,12 @@ from typing import Any, Dict, Tuple
 from copy import deepcopy
 
 from kedro.io.core import (
+    PROTOCOL_DELIMITER,
     AbstractVersionedDataSet,
+    DataSetError,
+    Version,
+    get_filepath_str,
+    get_protocol_and_path,
 )
 from tensorflow.keras.preprocessing import image_dataset_from_directory
 
@@ -31,23 +36,29 @@ class TfImageFolder(AbstractVersionedDataSet):
 
     }  # type: Dict[str, Any]
 
-    def __init__(self, folderpath: str, imagedim: int, load_args: Dict[str, Any]):
-        self._version = None
+    def __init__(self, folderpath: str, imagedim: int, load_args: Dict[str, Any], version: Version = None):
+        self._version = version
         self._folderpath = folderpath
         self._imagedim = imagedim
         # Handle default load arguments
         self._load_args = deepcopy(self.DEFAULT_LOAD_ARGS)
         if load_args is not None:
             self._load_args.update(load_args)
+        protocol, path = get_protocol_and_path(folderpath, version)
+        self._protocol = protocol
+        self._path = path
 
     def _load(self) -> Any:
+        load_path = self._path
+        if self._protocol != "file": # for cloud storage
+            load_path = f"{self._protocol}{PROTOCOL_DELIMITER}{self._path}"
         train_ds = image_dataset_from_directory(
-            self._folderpath,
+            load_path,
             image_size=(self._imagedim, self._imagedim),
             subset = 'training',
             **self._load_args)
         val_ds = image_dataset_from_directory(
-            self._folderpath,
+            load_path,
             image_size=(self._imagedim, self._imagedim),
             subset='validation',
             **self._load_args)
