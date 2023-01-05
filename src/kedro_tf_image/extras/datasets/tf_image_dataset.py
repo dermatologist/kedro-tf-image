@@ -1,3 +1,4 @@
+from io import BytesIO
 from pathlib import PurePosixPath
 from typing import Any, Callable, Dict
 from copy import deepcopy
@@ -109,7 +110,8 @@ class TfImageDataSet(AbstractVersionedDataSet):
 
         if self._protocol == "gs":
             with tf.io.gfile.GFile(load_path) as f:
-                img = load_img(f, target_size=(self._imagedim, self._imagedim))
+                buf = BytesIO(f.read())
+                img = load_img(buf, target_size=(self._imagedim, self._imagedim))
         img = load_img(load_path, target_size=(self._imagedim, self._imagedim))
         np_image = np.array(img)
         # reshape the data for the model reshape(num_of_samples, dim 1, dim 2, channels)
