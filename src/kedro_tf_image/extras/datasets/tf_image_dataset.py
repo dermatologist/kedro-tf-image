@@ -14,6 +14,7 @@ from kedro.io.core import (
 import fsspec
 import numpy as np
 
+import tensorflow as tf
 # for loading/processing the images
 from tensorflow.keras.preprocessing.image import load_img
 from tensorflow.keras.preprocessing.image import save_img
@@ -107,7 +108,7 @@ class TfImageDataSet(AbstractVersionedDataSet):
             load_path = f"{self._protocol}{PROTOCOL_DELIMITER}{load_path}"
 
         if self._protocol == "gs":
-            load_path = tensorflow.io.gfile.glob(load_path, mode='r')
+            load_path = tf.io.gfile.glob(load_path, mode='r')
         img = load_img(load_path, target_size=(self._imagedim, self._imagedim))
         np_image = np.array(img)
         # reshape the data for the model reshape(num_of_samples, dim 1, dim 2, channels)
