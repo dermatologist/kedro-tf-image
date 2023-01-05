@@ -109,7 +109,7 @@ class TfImageDataSet(AbstractVersionedDataSet):
             load_path = f"{self._protocol}{PROTOCOL_DELIMITER}{load_path}"
 
         if self._protocol == "gs":
-            with tf.io.gfile.GFile(load_path) as f:
+            with tf.io.gfile.GFile(load_path, "rb") as f:
                 buf = BytesIO(f.read())
                 img = load_img(buf, target_size=(self._imagedim, self._imagedim))
         img = load_img(load_path, target_size=(self._imagedim, self._imagedim))
