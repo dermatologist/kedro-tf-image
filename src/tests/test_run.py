@@ -39,6 +39,7 @@ from pathlib import Path
 
 import pytest
 from kedro.framework.context import KedroContext
+from kedro_tf_image.extras.datasets.tf_model_download import TfModelDownload
 from kedro_tf_image.extras.datasets.tf_model_weights import TfModelWeights
 
 from kedro_tf_image.hooks import ProjectHooks
@@ -186,3 +187,14 @@ class TestProjectContext:
         conf_params = project_context.config_loader.get('**/preprocess.yml')
         added_layer = add_layer(data,conf_params['add_layer'])
         assert added_layer is not None
+
+    # def test_tf_model_download(self, project_context):
+    #     model_url = "https://tfhub.dev/tensorflow/resnet_50/classification/1"
+    #     load_args = {
+    #         "trainable": False,
+    #         "dim": [None, 224, 224, 3]
+    #     }
+    #     data_set = TfModelDownload(
+    #         model_url=model_url, load_args=load_args)
+    #     data = data_set.load()
+    #     assert data is not None
