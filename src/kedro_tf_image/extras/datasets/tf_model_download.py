@@ -28,7 +28,9 @@ class TfModelDownload(AbstractDataSet):
     """
     DEFAULT_LOAD_ARGS = {
         "trainable": False,
-        "dim": [None, 224, 224, 3],
+        "height": 224,
+        "width": 224,
+        "channels": 3,
     }  # type: Dict[str, Any]
     def __init__(
         self,
@@ -55,12 +57,13 @@ class TfModelDownload(AbstractDataSet):
         location.
         """
         trainable = self._load_args.get("trainable", False)
-        dim = self._load_args.get("dim", [None, 224, 224, 3])
-
+        height = self._load_args.get("height", 224)
+        width = self._load_args.get("width", 224)
+        channels = self._load_args.get("channels", 3)
         m = tf.keras.Sequential([
             hub.KerasLayer(self._model_url, trainable=trainable)
         ])
-        m.build(dim)  # Batch input shape.
+        m.build([None, height, width, channels])  # Batch input shape.
 
         return m
 

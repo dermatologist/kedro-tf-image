@@ -192,7 +192,9 @@ class TestProjectContext:
     #     model_url = "https://tfhub.dev/tensorflow/resnet_50/classification/1"
     #     load_args = {
     #         "trainable": False,
-    #         "dim": [None, 224, 224, 3]
+    #         "height": 224,
+    #         "width": 224,
+    #         "channels": 3
     #     }
     #     data_set = TfModelDownload(
     #         model_url=model_url, load_args=load_args)
