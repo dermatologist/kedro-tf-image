@@ -1,6 +1,6 @@
-# Kedro TF Image
+# Kedro TF Image :framed_picture:	
 
-This package consists of [Kedro pipelines](https://kedro.readthedocs.io/en/stable/kedro.pipeline.html) for preprocessing images for TensorFlow. I use it mostly for [CNN based Dermatology workflows.](https://skinhelpdesk.com) and [multi-modal ML](https://github.com/dermatologist/kedro-tf-utils).
+This package consists of [Kedro pipelines](https://kedro.readthedocs.io/en/stable/kedro.pipeline.html) for preprocessing images using TensorFlow. I use it for [Dermatology workflows](https://skinhelpdesk.com) and [multimodal machine learning](https://github.com/dermatologist/kedro-multimodal). Use [this template](https://github.com/dermatologist/kedro-multimodal) that imports this package for multimodal ML. This package includes [Kedro datasets](https://kedro.readthedocs.io/en/stable/kedro.extras.datasets.html) for [loading weights](src/kedro_tf_image/extras/datasets/tf_model_weights.py) (as in CheXnet weights to a DenseNet121) and [downloading pre-trained models](src/kedro_tf_image/extras/datasets/tf_model_download.py) from TF hub.
 
 - The **download** pipeline downloads online images defined in a csv file for multilabel classification. The labels are added to the filename. The csv format is:
 
