@@ -1,1 +1,1 @@
-::: fhiry.chain
+::: src.kedro_tf_image

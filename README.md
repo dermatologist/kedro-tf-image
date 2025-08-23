@@ -49,7 +49,7 @@ imageset:
   dataset: {
       "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
       "imagedim": 224,
-      "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input"
+      "preprocess_input": "keras.applications.resnet50.preprocess_input"
   }
   path: data/01_raw/imageset
   filename_suffix: ".jpg"

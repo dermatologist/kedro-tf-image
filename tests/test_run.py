@@ -37,32 +37,37 @@ To run the tests, run ``kedro test``.
 """
 # from pathlib import Path
 
-import pytest
-# from kedro.framework.context import KedroContext
-from kedro_tf_image.extras.datasets.tf_model_weights import TfModelWeights
-
-from kedro_tf_image.pipelines.preprocess.nodes import add_layer, get_numeric_labels, get_tf_datasets, \
-    load_data_from_partitioned_dataset, load_data_from_partitioned_dataset_with_filename_as_key, load_data_from_partitioned_dataset_with_filename_as_key
-from kedro_tf_image.extras.datasets.tf_image_folder import TfImageFolder
-from kedro_tf_image.extras.datasets.tf_image_generic import TfImageGeneric
-from kedro_tf_image.extras.datasets.tf_image_processed import TfImageProcessed
 import numpy as np
-
-
+import pytest
 from kedro.config import OmegaConfigLoader
 from kedro.framework.project import settings
 
+from kedro_tf_image.extras.datasets.tf_image_folder import TfImageFolder
+from kedro_tf_image.extras.datasets.tf_image_generic import TfImageGeneric
+from kedro_tf_image.extras.datasets.tf_image_processed import TfImageProcessed
+
+# from kedro.framework.context import KedroContext
+from kedro_tf_image.extras.datasets.tf_model_weights import TfModelWeights
+from kedro_tf_image.pipelines.preprocess.nodes import (
+    add_layer,
+    get_numeric_labels,
+    get_tf_datasets,
+    load_data_from_partitioned_dataset,
+    load_data_from_partitioned_dataset_with_filename_as_key,
+)
 
 # from kedro.framework.hooks import _create_hook_manager
 
 # from kedro.framework.project import settings
 # from kedro.config import ConfigLoader
 
+
 @pytest.fixture
 def config_loader():
     project_path = Path.cwd()
     conf_path = f"{project_path}/{settings.CONF_SOURCE}"
     return OmegaConfigLoader(conf_source=conf_path)
+
 
 # from kedro.framework.context import KedroContext
 # from kedro.framework.hooks.manager import (
@@ -95,7 +100,7 @@ def config_loader():
 #     def test_image_read(self):
 #         dataset = {
 #             "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-#             "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
+#             "preprocess_input": "keras.applications.resnet50.preprocess_input",
 #             "imagedim": 224
 #         }
 #         path = 'data/01_raw/test_imageset'
@@ -110,7 +115,7 @@ def config_loader():
 #     def test_image_pickle(self):
 #         dataset = {
 #             "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-#             "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
+#             "preprocess_input": "keras.applications.resnet50.preprocess_input",
 #             "imagedim": 224
 #         }
 #         path = 'data/01_raw/test_imageset'
@@ -125,7 +130,7 @@ def config_loader():
 #     def test_tf_dataset(self):
 #         dataset = {
 #             "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-#             "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
+#             "preprocess_input": "keras.applications.resnet50.preprocess_input",
 #             "imagedim": 224
 #         }
 #         path = 'data/01_raw/test_imageset'
@@ -220,7 +225,6 @@ from kedro.framework.session import KedroSession
 from kedro.framework.startup import bootstrap_project
 from kedro_datasets.partitions import PartitionedDataset
 
-
 # The tests below are here for the demonstration purpose
 # and should be replaced with the ones testing the project
 # functionality
@@ -235,7 +239,7 @@ class TestKedroRun:
     def test_image_read(self):
         dataset = {
             "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-            "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
+            "preprocess_input": "keras.applications.resnet50.preprocess_input",
             "imagedim": 224,
         }
         path = "data/01_raw/test_imageset"
@@ -250,7 +254,7 @@ class TestKedroRun:
     def test_image_pickle(self):
         dataset = {
             "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-            "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
+            "preprocess_input": "keras.applications.resnet50.preprocess_input",
             "imagedim": 224,
         }
         path = "data/01_raw/test_imageset"
@@ -265,7 +269,7 @@ class TestKedroRun:
     def test_tf_dataset(self):
         dataset = {
             "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-            "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input",
+            "preprocess_input": "keras.applications.resnet50.preprocess_input",
             "imagedim": 224,
         }
         path = "data/01_raw/test_imageset"
