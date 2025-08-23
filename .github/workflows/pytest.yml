@@ -23,7 +23,7 @@ jobs:
         python-version: ['3.11']
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Set up the environment
       uses: ./.github/actions/setup-python-env
@@ -35,10 +35,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up the environment
         uses: ./.github/actions/setup-python-env
 
       - name: Check if documentation can be built
-        run: uv run mkdocs build -s
+        run: uv run mkdocs build
