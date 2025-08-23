@@ -1,9 +1,10 @@
 from pathlib import PurePosixPath
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from copy import deepcopy
 
+
 from kedro.io.core import (
-    AbstractVersionedDataSet,
+    AbstractVersionedDataset,
     Version,
     get_filepath_str,
     get_protocol_and_path,
@@ -13,11 +14,11 @@ import fsspec
 import numpy as np
 
 # for loading/processing the images
-from tensorflow.keras.preprocessing.image import load_img
-from tensorflow.keras.preprocessing.image import save_img
-from tensorflow.keras.applications.resnet50 import preprocess_input
+from keras.preprocessing.image import load_img
+from keras.preprocessing.image import save_img
+from keras.applications.resnet50 import preprocess_input
 
-class TfImageGeneric(AbstractVersionedDataSet):
+class TfImageGeneric(AbstractVersionedDataset):
     """``TfGenericImage`` loads / save image data from a given filepath as `numpy` array using Pillow.
 
     @deprecated: Use :func:`kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet` instead.
@@ -32,27 +33,33 @@ class TfImageGeneric(AbstractVersionedDataSet):
     DEFAULT_LOAD_ARGS = {
     }
 
-    def __init__(self, filepath: str, imagedim: int = 224, load_args: Dict[str, Any] = {}, save_args: Dict[str, Any] = {}):
+    def __init__(
+        self,
+        filepath: str,
+        imagedim: int = 224,
+        load_args: Optional[Dict[str, Any]] = None,
+        save_args: Optional[Dict[str, Any]] = None,
+        version: Optional[Version] = None,
+    ):
         """Creates a new instance of ImageDataSet to load / save image data for given filepath.
 
         Args:
             filepath: The location of the image file to load / save data.
+            imagedim: Target image dimension (assumes square images).
+            load_args: Extra arguments for keras.preprocessing.image.load_img.
+            save_args: Extra arguments for keras.preprocessing.image.save_img.
+            version: Optional Kedro dataset Version.
         """
-        # parse the path and protocol (e.g. file, http, s3, etc.)
         protocol, path = get_protocol_and_path(filepath)
         self._protocol = protocol
-        self._filepath = PurePosixPath(path)
         self._fs = fsspec.filesystem(self._protocol)
-        self._version = None
-        self._version_cache = {}
+        super().__init__(PurePosixPath(path), version=version)  # sets _filepath, _version, _version_cache
         self._imagedim = imagedim
-        # Handle default load arguments
         self._load_args = deepcopy(self.DEFAULT_LOAD_ARGS)
-        if load_args is not None:
+        if load_args:
             self._load_args.update(load_args)
-        # Handle default save arguments
         self._save_args = deepcopy(self.DEFAULT_SAVE_ARGS)
-        if save_args is not None:
+        if save_args:
             self._save_args.update(save_args)
 
     def _load(self) -> np.ndarray:

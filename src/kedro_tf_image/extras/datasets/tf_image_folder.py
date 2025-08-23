@@ -1,17 +1,17 @@
 from typing import Any, Dict, Tuple
 from copy import deepcopy
-
 from kedro.io.core import (
-    PROTOCOL_DELIMITER,
-    AbstractVersionedDataSet,
-    DataSetError,
-    Version,
-    get_filepath_str,
     get_protocol_and_path,
+    get_filepath_str,
+    AbstractVersionedDataset,
+    DatasetError,
+    Version,
+    PROTOCOL_DELIMITER,
 )
-from tensorflow.keras.preprocessing import image_dataset_from_directory
 
-class TfImageFolder(AbstractVersionedDataSet):
+from keras.preprocessing import image_dataset_from_directory
+
+class TfImageFolder(AbstractVersionedDataset):
     """``ImageDataSet`` loads / save image data from a given folder
     Example:
     ::
@@ -36,7 +36,7 @@ class TfImageFolder(AbstractVersionedDataSet):
 
     }  # type: Dict[str, Any]
 
-    def __init__(self, folderpath: str, imagedim: int, load_args: Dict[str, Any], version: Version = None):
+    def __init__(self, folderpath: str, imagedim: int, load_args: Dict[str, Any], version: Version | None = None):
         self._version = version
         self._folderpath = folderpath
         self._imagedim = imagedim

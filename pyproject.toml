@@ -1,21 +1,131 @@
 [project]
 name = "kedro_tf_image"
-version = "1.2.0"
+dynamic = ["version"]
+description = "Kedro plugin for TensorFlow image processing pipelines"
+authors = [{ name = "Bell Eapen", email = "github_public@gulfdoctor.net" }]
+readme = "README.md"
+keywords = ['python']
+requires-python = ">=3.10,<4.0"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Healthcare Industry",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "ipython>=8.10",
+    "jupyterlab>=3.0",
+    "notebook",
+    "kedro[jupyter]~=1.0.0",
+    "kedro-datasets[pandas-csvdataset, pandas-exceldataset, pandas-parquetdataset, plotly-plotlydataset, plotly-jsondataset, matplotlib-matplotlibwriter]>=3.0",
+    "kedro-viz>=6.7.0",
+    "scikit-learn~=1.5.1",
+    "seaborn~=0.12.1",
+    "tensorflow>=2.10.0",
+    "tensorflow-hub",
+    "opencv-python",
+    "matplotlib",
+    "tensorflow-hub"
+]
+
+[build-system]
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true
+
+[tool.uv-dynamic-versioning]
+fallback-version = "0.1.0"
+
+[tool.uv.build-backend]
+source-exclude = [
+  "tests/*",
+  "examples/*",
+  "docs/*",
+  "notes/*",
+  "notebooks/*"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kedro_tf_image"]
+
+
+[project.scripts]
+"kedro-tf-image" = "kedro_tf_image.__main__:main"
+
+[project.entry-points."kedro.hooks"]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.2.0",
+    "pre-commit>=2.20.0",
+    "tox-uv>=1.11.3",
+    "deptry>=0.23.0",
+    "mypy>=0.991",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.11.5",
+    "mkdocs>=1.4.2",
+    "mkdocs-material>=8.5.10",
+    "mkdocstrings[python]>=0.26.1",
+]
+
+
+[tool.setuptools.dynamic]
+version = {attr = "kedro_tf_image.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
 
 [tool.kedro]
 package_name = "kedro_tf_image"
-project_name = "Kedro TF Image"
-project_version = "0.18.4"
-
-[tool.isort]
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-line_length = 88
-known_third_party = "kedro"
+project_name = "kedro-tf-image"
+kedro_init_version = "1.0.0"
+tools = "['None']"
+example_pipeline = "False"
+source_dir = "src"
 
 [tool.pytest.ini_options]
 addopts = """
 --cov-report term-missing \
 --cov src/kedro_tf_image -ra"""
+
+[tool.coverage.report]
+fail_under = 0
+show_missing = true
+exclude_lines = ["pragma: no cover", "raise NotImplementedError"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff]
+line-length = 88
+show-fixes = true
+
+[tool.ruff.lint]
+select = [
+    "F",   # Pyflakes
+    "W",   # pycodestyle
+    "E",   # pycodestyle
+    "I",   # isort
+    "UP",  # pyupgrade
+    "PL",  # Pylint
+    "T201", # Print Statement
+]
+ignore = ["E501"]  # Ruff format takes care of line-too-long
+
+[tool.kedro_telemetry]
+project_id = "5634dff29cfc48419ff6c7882cd44e44"

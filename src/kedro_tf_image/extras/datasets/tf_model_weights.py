@@ -5,22 +5,22 @@ from typing import Any, Dict, Tuple
 from copy import deepcopy
 import fsspec
 from kedro.io.core import (
-    PROTOCOL_DELIMITER,
-    AbstractVersionedDataSet,
-    DataSetError,
-    Version,
-    get_filepath_str,
     get_protocol_and_path,
+    get_filepath_str,
+    AbstractVersionedDataset,
+    DatasetError,
+    Version,
+    PROTOCOL_DELIMITER,
 )
 import tensorflow as tf
 from cachetools import Cache
 import importlib
 from keras.layers import Input
-from keras.layers.core import Dense
+from keras.layers import Dense
 from keras.models import Model
 import logging
 logger = logging.getLogger(__name__)
-class TfModelWeights(AbstractVersionedDataSet):
+class TfModelWeights(AbstractVersionedDataset):
 
     """_summary_
     _description_
@@ -39,16 +39,16 @@ class TfModelWeights(AbstractVersionedDataSet):
 
     def __init__(self, filepath: str,
                 architecture: str = "DenseNet121",
-                load_args: Dict[str, Any] = None,
-                save_args: Dict[str, Any] = None,
-                version: Version = None,
-                credentials: Dict[str, Any] = None,
-                fs_args: Dict[str, Any] = None,) -> None:
+                load_args: Dict[str, Any] | None = None,
+                save_args: Dict[str, Any] | None = None,
+                version: Version | None = None,
+                credentials: Dict[str, Any] | None = None,
+                fs_args: Dict[str, Any] | None = None) -> None:
 
         _fs_args = deepcopy(fs_args) or {}
         _credentials = deepcopy(credentials) or {}
         protocol = None
-        path = None
+        path: str | None = None
         self._filepath = filepath
         if self._filepath:
             protocol, path = get_protocol_and_path(filepath, version)
@@ -59,7 +59,8 @@ class TfModelWeights(AbstractVersionedDataSet):
         self._storage_options = {**_credentials, **_fs_args}
         self._fs = fsspec.filesystem(self._protocol, **self._storage_options)
 
-        if self._filepath:
+        # Only initialize the base class when we have a valid path string
+        if self._filepath and path is not None:
             super().__init__(
                 filepath=PurePosixPath(path),
                 version=version,
@@ -149,7 +150,8 @@ class TfModelWeights(AbstractVersionedDataSet):
             return self.get_model(load_path, self._architecture, **self._load_args)
 
     def _save(self, model: Any) -> None:
-        save_path = get_filepath_str(self._get_save_path(), self._protocol)
+        protocol = self._protocol if self._protocol is not None else "file"
+        save_path = get_filepath_str(self._get_save_path(), protocol)
         model.save_weights(save_path, **self._save_args)
 
     def _describe(self) -> Dict[str, Any]:

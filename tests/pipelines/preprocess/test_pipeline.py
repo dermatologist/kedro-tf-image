@@ -35,25 +35,41 @@ in the official documentation:
 https://docs.pytest.org/en/latest/getting-started.html
 """
 from pathlib import Path
-from kedro.extras.datasets.pandas.csv_dataset import CSVDataSet
 from kedro.framework.context.context import KedroContext
 from kedro.pipeline import node
 from kedro.pipeline.pipeline import Pipeline
+from kedro_tf_image.pipelines.preprocess import nodes as preprocess_nodes
+import pandas as pd
 import pytest
 
 
-
 @pytest.fixture
-def project_context():
-    return KedroContext(
-        package_name="kedro_tf_image",
-        project_path=Path.cwd(),
+def dummy_data():
+    return pd.DataFrame(
+        {
+            "id": [1, 2],
+            "url": [
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Sled_dog_on_Svalbard_with_heterochromia.jpg/640px-Sled_dog_on_Svalbard_with_heterochromia.jpg",
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Dalmatian_fetching_a_stick.jpg/640px-Dalmatian_fetching_a_stick.jpg",
+            ],
+            "labels": ["cat|white|tan", "dog|black|white"],
+        }
     )
 
 
-class TestPreprocesPipeline:
-    # def test_csv_read(self, project_context):
-    #     data_set = CSVDataSet(filepath="data/01_raw/skintype.csv")
-    #     reloaded = data_set.load()
-    #     print(load_data_from_url(reloaded))  # TODO Change this to assert
-    pass
+@pytest.fixture
+def dummy_parameters():
+    parameters = {
+        "model_options": {
+            "test_size": 0.2,
+            "random_state": 3,
+            "features": ["engines", "passenger_capacity", "crew"],
+        }
+    }
+    return parameters
+
+
+def test_load_data_from_url(dummy_data, dummy_parameters):
+    result = preprocess_nodes.load_data_from_url(dummy_data, delay=1, imagedim=224)
+    assert isinstance(result, dict)
+    assert len(result) == 2

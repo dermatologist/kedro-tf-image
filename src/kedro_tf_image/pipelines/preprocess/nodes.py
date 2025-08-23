@@ -30,21 +30,22 @@ Ref: https://stackoverflow.com/questions/60430277/how-to-load-images-from-url-wi
 Ref2: https://www.tensorflow.org/tutorials/load_data/images
 """
 
+import logging
 import time
 from typing import Any, Callable, Dict, List, Tuple
-from numpy.core.fromnumeric import shape
-import tensorflow as tf
-import numpy as np
-import cv2
 from urllib.request import urlopen
-import matplotlib.pyplot as plt
+
+import cv2
+import keras
+import numpy as np
 import pandas as pd
-from tensorflow.python.data.ops.dataset_ops import AUTOTUNE
+import tensorflow as tf
 from keras import layers, models
 
-import logging
 
-def load_data_from_url(data: pd.DataFrame, delay: int = 3, imagedim: int = 224) -> Dict[str, Any]:
+def load_data_from_url(
+    data: pd.DataFrame, delay: int = 3, imagedim: int = 224
+) -> Dict[str, Any]:
     """Loads images from URLs in the csv
 
     The Partitioned dataset expects a Dict in the following format
@@ -61,12 +62,12 @@ def load_data_from_url(data: pd.DataFrame, delay: int = 3, imagedim: int = 224) 
     to_return = {}  # {'filename1': data1, 'filename2: data2} for PartitionedDataset
     for index, row in data.iterrows():
         try:
-            downloaded_data = read_url(row['url'], delay, imagedim)
+            downloaded_data = read_url(row["url"], delay, imagedim)
             # Example: _dog_black_white_1
-            filename = "_" + row['labels'].replace('|', '_') + "_" + str(index)
+            filename = "_" + row["labels"].replace("|", "_") + "_" + str(index)
             to_return[filename] = downloaded_data
         except:
-            logging.info(row['url'] + " unavailable.")
+            logging.info(row["url"] + " unavailable.")
     return to_return
 
 
@@ -85,12 +86,17 @@ def read_url(url: str, delay, imagedim) -> np.ndarray:
         time.sleep(delay)
         img_array = np.asarray(bytearray(request.read()), dtype=np.uint8)
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
-        res = cv2.resize(img, dsize=(imagedim, imagedim), interpolation=cv2.INTER_CUBIC)
+        if img is None:
+            raise ValueError(f"Failed to decode image from URL: {url}")
+        # img is guaranteed not None now, safe to resize
+        res = cv2.resize(img, (imagedim, imagedim), interpolation=cv2.INTER_CUBIC)
         return cv2.cvtColor(res, cv2.COLOR_BGR2RGB)
 
 
 # https://github.com/faikaydin/medical-multimodal-with-transfer-learning/blob/master/image_preprocessing/image_preprocessing.ipynb
-def load_data_from_partitioned_dataset_with_filename_as_key(partitioned_input: Dict[str, Callable[[], Any]]) -> Dict[str, Any]:
+def load_data_from_partitioned_dataset_with_filename_as_key(
+    partitioned_input: Dict[str, Callable[[], Any]],
+) -> Dict[str, Any]:
     """_summary_
 
     Args:
@@ -115,7 +121,9 @@ def load_data_from_partitioned_dataset_with_filename_as_key(partitioned_input: D
     return dict(zip(ids, img_data))
 
 
-def load_data_from_partitioned_dataset(partitioned_input: Dict[str, Callable[[], Any]]) -> Dict[str, Any]:
+def load_data_from_partitioned_dataset(
+    partitioned_input: Dict[str, Callable[[], Any]],
+) -> Dict[str, Any]:
     """Loads images and labels (from filename eg. _cat_white_tan_12.jpg) from a PartitionedDataset
 
     Returns
@@ -135,11 +143,11 @@ def load_data_from_partitioned_dataset(partitioned_input: Dict[str, Callable[[],
     to_return = {}
     for partition_key, partition_load_func in sorted(partitioned_input.items()):
         result = {}
-    # load the actual partition data which is an np.array preprocessed by tf
+        # load the actual partition data which is an np.array preprocessed by tf
         partition_data = partition_load_func()
-        labels = partition_key.split('_')[1:-1]
-        result['image'] = partition_data
-        result['labels'] = labels
+        labels = partition_key.split("_")[1:-1]
+        result["image"] = partition_data
+        result["labels"] = labels
         to_return[partition_key] = result
     return to_return
 
@@ -156,14 +164,16 @@ def get_numeric_labels(labels: List, master_labels: List) -> List:
     """
     numeric_labels = []
     for label in master_labels:
-        if(label in labels):
+        if label in labels:
             numeric_labels.append(1)
         else:
             numeric_labels.append(0)
     return numeric_labels
 
 
-def get_tf_datasets(from_partitioned_dataset_loader: Dict[str, any], params: Dict[str, Any]) -> Tuple:
+def get_tf_datasets(
+    from_partitioned_dataset_loader: Dict[str, Any], params: Dict[str, Any]
+) -> Tuple:
     """Returns train and validation datasets for TF
 
     Args:
@@ -171,14 +181,17 @@ def get_tf_datasets(from_partitioned_dataset_loader: Dict[str, any], params: Dic
         params (Dict[str, Any]): [description]
     """
     data = from_partitioned_dataset_loader.values()
-    images = [np.asarray(record['image']).astype('float32') for record in data]
-    labels = [get_numeric_labels(record['labels'], params['master_labels']) for record in data]
+    images = [np.asarray(record["image"]).astype("float32") for record in data]
+    labels = [
+        get_numeric_labels(record["labels"], params["master_labels"]) for record in data
+    ]
     slices = (images, labels)
     dataset = tf.data.Dataset.from_tensor_slices(slices)
-    val_size = int(len(data) * params['val_size'])
+    val_size = int(len(data) * params["val_size"])
     train_ds = dataset.skip(val_size)
     val_ds = dataset.take(val_size)
-    return(train_ds, val_ds)
+    return (train_ds, val_ds)
+
 
 def autotune(datasets: Tuple) -> Tuple:
     """[summary]
@@ -193,7 +206,7 @@ def autotune(datasets: Tuple) -> Tuple:
     (train_ds, val_ds) = datasets
     train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
     val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
-    return(train_ds, val_ds)
+    return (train_ds, val_ds)
 
 
 def standardize(datasets: Tuple) -> Tuple:
@@ -210,32 +223,35 @@ def standardize(datasets: Tuple) -> Tuple:
     Returns:
         Tuple: [description]
     """
-    normalization_layer = layers.experimental.preprocessing.Rescaling(1./255)
+    normalization_layer = layers.Rescaling(1.0 / 255)
     (train_ds, val_ds) = datasets
     train_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
     val_ds = val_ds.map(lambda x, y: (normalization_layer(x), y))
-    return(train_ds, val_ds)
+    return (train_ds, val_ds)
+
 
 def autotune_standardize(datasets: Tuple) -> Tuple:
     datasets = autotune(datasets)
     datasets = standardize(datasets)
-    return datasets   # (train_ds, val_ds)
+    return datasets  # (train_ds, val_ds)
 
 
 def passon(datasets: Tuple) -> Tuple:
     return datasets
 
 
-def add_layer(model: tf.keras.Model, parameters: Dict) -> tf.keras.Model:
+def add_layer(model: keras.Model, parameters: Dict) -> keras.Model:
     """Adds a layer to a model
 
     Args:
-        model (tf.keras.Model): [description]
-        layer (tf.keras.layers.Layer): [description]
+        model (keras.Model): [description]
+        layer (keras.layers.Layer): [description]
 
     Returns:
-        tf.keras.Model: [description]
+        keras.Model: [description]
     """
-    output = layers.Dense(parameters['NCLASSES'], activation="softmax", name="DENSE_CLASSIFIER")(model.output)
+    output = layers.Dense(
+        parameters["NCLASSES"], activation="softmax", name="DENSE_CLASSIFIER"
+    )(model.output)
     _model = models.Model(model.input, output, name="Model_with_classifier")
     return _model
