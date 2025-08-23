@@ -52,11 +52,11 @@ class TfImageProcessed(AbstractVersionedDataset):
         if self._protocol != "file": # for cloud storage
             load_path = f"{self._protocol}{PROTOCOL_DELIMITER}{self._path}"
         train_ds_path = os.path.join(load_path, "train_ds")
-        train_ds = tf.data.experimental.load(
+        train_ds = tf.data.Dataset.load(
             train_ds_path, **self._load_args
         )
         val_ds_path = os.path.join(load_path, "val_ds")
-        val_ds = tf.data.experimental.load(
+        val_ds = tf.data.Dataset.load(
             val_ds_path, **self._load_args
         )
         return(train_ds, val_ds)
@@ -67,11 +67,11 @@ class TfImageProcessed(AbstractVersionedDataset):
             save_path = f"{self._protocol}{PROTOCOL_DELIMITER}{self._path}"
         (train_ds, val_ds) = data
         train_ds_path = os.path.join(save_path, "train_ds")
-        tf.data.experimental.save(
+        tf.data.Dataset.save(
             train_ds, train_ds_path, **self._save_args
         )
         val_ds_path = os.path.join(save_path, "val_ds")
-        tf.data.experimental.save(
+        tf.data.Dataset.save(
             val_ds, val_ds_path, **self._save_args
         )
 

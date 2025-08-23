@@ -37,13 +37,10 @@ from urllib.request import urlopen
 
 import cv2
 import keras
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 from keras import layers, models
-from numpy.core.fromnumeric import shape
-from tensorflow.python.data.ops.dataset_ops import AUTOTUNE
 
 
 def load_data_from_url(
