@@ -32,6 +32,7 @@ Ref2: https://www.tensorflow.org/tutorials/load_data/images
 
 import time
 from typing import Any, Callable, Dict, List, Tuple
+import keras
 from numpy.core.fromnumeric import shape
 import tensorflow as tf
 import numpy as np
@@ -85,7 +86,10 @@ def read_url(url: str, delay, imagedim) -> np.ndarray:
         time.sleep(delay)
         img_array = np.asarray(bytearray(request.read()), dtype=np.uint8)
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
-        res = cv2.resize(img, dsize=(imagedim, imagedim), interpolation=cv2.INTER_CUBIC)
+        if img is None:
+            raise ValueError(f"Failed to decode image from URL: {url}")
+        # img is guaranteed not None now, safe to resize
+        res = cv2.resize(img, (imagedim, imagedim), interpolation=cv2.INTER_CUBIC)
         return cv2.cvtColor(res, cv2.COLOR_BGR2RGB)
 
 
@@ -163,7 +167,7 @@ def get_numeric_labels(labels: List, master_labels: List) -> List:
     return numeric_labels
 
 
-def get_tf_datasets(from_partitioned_dataset_loader: Dict[str, any], params: Dict[str, Any]) -> Tuple:
+def get_tf_datasets(from_partitioned_dataset_loader: Dict[str, Any], params: Dict[str, Any]) -> Tuple:
     """Returns train and validation datasets for TF
 
     Args:
@@ -210,7 +214,7 @@ def standardize(datasets: Tuple) -> Tuple:
     Returns:
         Tuple: [description]
     """
-    normalization_layer = layers.experimental.preprocessing.Rescaling(1./255)
+    normalization_layer = layers.Rescaling(1./255)
     (train_ds, val_ds) = datasets
     train_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
     val_ds = val_ds.map(lambda x, y: (normalization_layer(x), y))
@@ -226,7 +230,7 @@ def passon(datasets: Tuple) -> Tuple:
     return datasets
 
 
-def add_layer(model: tf.keras.Model, parameters: Dict) -> tf.keras.Model:
+def add_layer(model: keras.Model, parameters: Dict) -> keras.Model:
     """Adds a layer to a model
 
     Args:

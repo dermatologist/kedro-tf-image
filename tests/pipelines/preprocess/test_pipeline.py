@@ -25,32 +25,20 @@
 #
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+This is a boilerplate test file for pipeline 'preprocess'
+generated using Kedro 0.17.3.
+Please add your pipeline tests here.
 
-"""Project hooks."""
-from typing import Any, Dict, Iterable, Optional
+Kedro recommends using `pytest` framework, more info about it can be found
+in the official documentation:
+https://docs.pytest.org/en/latest/getting-started.html
+"""
+from pathlib import Path
+from kedro.framework.context.context import KedroContext
+from kedro.pipeline import node
+from kedro.pipeline.pipeline import Pipeline
+import pytest
 
-from kedro.config import ConfigLoader
-from kedro.framework.hooks import hook_impl
-from kedro.io import DataCatalog
-# from kedro.versioning import Journal
 
 
-class ProjectHooks:
-    @hook_impl
-    def register_config_loader(
-        self, conf_paths: Iterable[str], env: str, extra_params: Dict[str, Any]
-    ) -> ConfigLoader:
-        return ConfigLoader(conf_paths)
-
-    @hook_impl
-    def register_catalog(
-        self,
-        catalog: Optional[Dict[str, Dict[str, Any]]],
-        credentials: Dict[str, Dict[str, Any]],
-        load_versions: Dict[str, str],
-        save_version: str,
-        # journal: Journal,
-    ) -> DataCatalog:
-        return DataCatalog.from_config(
-            catalog, credentials, load_versions, save_version #, journal
-        )

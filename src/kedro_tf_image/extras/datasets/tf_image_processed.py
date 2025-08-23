@@ -1,21 +1,21 @@
 import os
 from typing import Any, Dict, Tuple
 from copy import deepcopy
-
 from kedro.io.core import (
-    PROTOCOL_DELIMITER,
-    AbstractVersionedDataSet,
-    DataSetError,
-    Version,
-    get_filepath_str,
     get_protocol_and_path,
+    get_filepath_str,
+    AbstractVersionedDataset,
+    DatasetError,
+    Version,
+    PROTOCOL_DELIMITER,
 )
-from tensorflow.keras.preprocessing import image_dataset_from_directory
+
+from keras.preprocessing import image_dataset_from_directory
 import tensorflow as tf
 from cachetools import Cache
 
 
-class TfImageProcessed(AbstractVersionedDataSet):
+class TfImageProcessed(AbstractVersionedDataset):
 
     DEFAULT_LOAD_ARGS = {
 
@@ -25,7 +25,7 @@ class TfImageProcessed(AbstractVersionedDataSet):
 
     }  # type: Dict[str, Any]
 
-    def __init__(self, folderpath: str, imagedim: int = 224, load_args: Dict[str, Any] = None, save_args: Dict[str, Any] = None, version: Version = None):
+    def __init__(self, folderpath: str, imagedim: int = 224, load_args: Dict[str, Any] | None = None, save_args: Dict[str, Any] | None = None, version: Version | None = None):
         self._version = version
         self._version_cache = Cache(maxsize=2)
         self._folderpath = folderpath
@@ -34,8 +34,10 @@ class TfImageProcessed(AbstractVersionedDataSet):
         if load_args is not None:
             self._load_args.update(load_args)
         if "element_spec" not in self._load_args:
-            spec = (tf.TensorSpec(shape=(None, imagedim, imagedim, 3), dtype=tf.float32, name=None),
-                    tf.TensorSpec(shape=(None,), dtype=tf.int32, name=None))
+            spec = (
+                tf.TensorSpec(shape=(None, imagedim, imagedim, 3), dtype=tf.float32, name=None), # type: ignore
+                tf.TensorSpec(shape=(None,), dtype=tf.int32, name=None), # type: ignore
+            )
             self._load_args['element_spec'] = spec
         # Handle default save arguments
         self._save_args = deepcopy(self.DEFAULT_SAVE_ARGS)

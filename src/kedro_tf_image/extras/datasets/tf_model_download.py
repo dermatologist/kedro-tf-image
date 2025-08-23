@@ -16,14 +16,15 @@
 
 from copy import deepcopy
 from typing import Any, Dict
-from kedro.io.core import AbstractDataSet
+from kedro.io.core import AbstractDataset
+import keras
 import tensorflow_hub as hub
 import tensorflow as tf
 
 # https://gist.github.com/dermatologist/062c46eafe8c118334a004f6cfab663d
 
 
-class TfModelDownload(AbstractDataSet):
+class TfModelDownload(AbstractDataset):
     """This class downloads a BERT model and returns tokenizers and
     """
     DEFAULT_LOAD_ARGS = {
@@ -60,7 +61,7 @@ class TfModelDownload(AbstractDataSet):
         height = self._load_args.get("height", 224)
         width = self._load_args.get("width", 224)
         channels = self._load_args.get("channels", 3)
-        m = tf.keras.Sequential([
+        m = keras.Sequential([
             hub.KerasLayer(self._model_url, trainable=trainable)
         ])
         m.build([None, height, width, channels])  # Batch input shape.

@@ -1,40 +1,31 @@
 from io import BytesIO
 from pathlib import PurePosixPath
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, cast
 from copy import deepcopy
-
-from kedro.io.core import (
-    PROTOCOL_DELIMITER,
-    AbstractVersionedDataSet,
-    DataSetError,
-    Version,
-    get_filepath_str,
-    get_protocol_and_path,
-)
-
+from kedro.io.core import get_protocol_and_path, get_filepath_str, AbstractVersionedDataset, DatasetError, Version, PROTOCOL_DELIMITER
+from kedro_datasets.pillow.image_dataset import ImageDataset
+from kedro.utils import load_obj
+import tensorflow as tf
+from keras.preprocessing.image import load_img
+from keras.preprocessing.image import save_img
+from keras.applications.resnet50 import preprocess_input
 import fsspec
 import numpy as np
 
-import tensorflow as tf
-# for loading/processing the images
-from tensorflow.keras.preprocessing.image import load_img
-from tensorflow.keras.preprocessing.image import save_img
-from kedro.utils import load_obj
-from kedro.extras.datasets.pillow.image_dataset import ImageDataSet
-from tensorflow.keras.applications.resnet50 import preprocess_input
+
 # The following is supplied as callable and defined in the catalog.yml
 """
 imageset:
   type: PartitionedDataSet
   dataset: {
       "type": "kedro_tf_image.extras.datasets.tf_image_dataset.TfImageDataSet",
-      "preprocess_input": "tensorflow.keras.applications.resnet50.preprocess_input"
+      "preprocess_input": "keras.applications.resnet50.preprocess_input"
   }
   path: data/01_raw/imageset
   filename_suffix: ".jpg"
 """
-# from tensorflow.keras.applications.resnet50 import preprocess_input
-class TfImageDataSet(AbstractVersionedDataSet):
+# from keras.applications.resnet50 import preprocess_input
+class TfImageDataSet(AbstractVersionedDataset):
     """``TfImageDataSet`` loads / save image data from a given filepath as `numpy` array using TF.
 
     Differences from ImageDataSet
@@ -43,20 +34,19 @@ class TfImageDataSet(AbstractVersionedDataSet):
     Example:
     ::
 
-        >>> TfImageDataSet(filepath='/img/file/path.png', preprocess_input=tensorflow.keras.applications.resnet50.preprocess_input)
+        >>> TfImageDataSet(filepath='/img/file/path.png', preprocess_input=keras.applications.resnet50.preprocess_input)
     """
 
     DEFAULT_SAVE_ARGS = {}  # type: Dict[str, Any]
-
 
     # These should be supplied in the catalog
     def __init__(self,
                  filepath: str,
                  preprocess_input: str,  # defaults to ResNet50 preprocessor
-                 save_args: Dict[str, Any] = None,
-                 version: Version = None,
-                 credentials: Dict[str, Any] = None,
-                 fs_args: Dict[str, Any] = None,
+                 save_args: Dict[str, Any] | None = None,
+                 version: Version | None = None,
+                 credentials: Dict[str, Any] | None = None,
+                 fs_args: Dict[str, Any] | None = None,
                  imagedim: int = 224): #defaults to ResNet50 dim
         """Creates a new instance of ImageDataSet to load / save image data for given filepath.
 
@@ -91,7 +81,7 @@ class TfImageDataSet(AbstractVersionedDataSet):
         self._fs_open_args_load = _fs_open_args_load
         self._fs_open_args_save = _fs_open_args_save
         self._preprocess_input = load_obj(
-            preprocess_input, "tensorflow.keras.applications.resnet50.preprocess_input") # second argument is the default
+            preprocess_input, "keras.applications.resnet50.preprocess_input") # second argument is the default
         self._imagedim = imagedim
 
     def _load(self) -> np.ndarray:
@@ -110,7 +100,8 @@ class TfImageDataSet(AbstractVersionedDataSet):
 
         if self._protocol == "gs":
             with tf.io.gfile.GFile(load_path, "rb") as f:
-                buf = BytesIO(f.read())
+                # tf.io.gfile.GFile.read is typed as bytes | str; in binary mode it returns bytes
+                buf = BytesIO(cast(bytes, f.read()))
                 img = load_img(buf, target_size=(self._imagedim, self._imagedim))
         else:
             img = load_img(load_path, target_size=(self._imagedim, self._imagedim))
@@ -133,11 +124,10 @@ class TfImageDataSet(AbstractVersionedDataSet):
         """Returns a dict that describes the attributes of the dataset."""
         return dict(filepath=self._filepath, protocol=self._protocol, preprocess_input=self._preprocess_input)
 
-
     def _exists(self) -> bool:
         try:
             load_path = get_filepath_str(self._get_load_path(), self._protocol)
-        except DataSetError:
+        except DatasetError:
             return False
 
         return self._fs.exists(load_path)
