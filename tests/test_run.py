@@ -48,31 +48,38 @@ from kedro_tf_image.extras.datasets.tf_image_generic import TfImageGeneric
 from kedro_tf_image.extras.datasets.tf_image_processed import TfImageProcessed
 import numpy as np
 
+
+from kedro.config import OmegaConfigLoader
+from kedro.framework.project import settings
+
+
 # from kedro.framework.hooks import _create_hook_manager
 
 # from kedro.framework.project import settings
 # from kedro.config import ConfigLoader
 
-# @pytest.fixture
-# def config_loader():
-#     return ConfigLoader(conf_source=str(Path.cwd() / settings.CONF_SOURCE))
-
-from kedro.framework.context import KedroContext
-from kedro.framework.hooks.manager import (
-    _create_hook_manager,
-    _register_hooks,
-    _register_hooks_entry_points,
-)
-
 @pytest.fixture
-def project_context(config_loader):
-    return KedroContext(
-        _package_name="kedro_tf_image",
-        env="local",
-        project_path=Path.cwd(),
-        config_loader=config_loader,
-        _hook_manager=_create_hook_manager(),
-    )
+def config_loader():
+    project_path = Path.cwd()
+    conf_path = f"{project_path}/{settings.CONF_SOURCE}"
+    return OmegaConfigLoader(conf_source=conf_path)
+
+# from kedro.framework.context import KedroContext
+# from kedro.framework.hooks.manager import (
+#     _create_hook_manager,
+#     _register_hooks,
+#     _register_hooks_entry_points,
+# )
+
+# @pytest.fixture
+# def project_context(config_loader):
+#     return KedroContext(
+#         _package_name="kedro_tf_image",
+#         env="local",
+#         project_path=Path.cwd(),
+#         config_loader=config_loader,
+#         _hook_manager=_create_hook_manager(),
+#     )
 
 
 # The tests below are here for the demonstration purpose
@@ -222,7 +229,6 @@ from kedro_datasets.partitions import PartitionedDataset
 class TestKedroRun:
     def test_kedro_run(self):
         bootstrap_project(Path.cwd())
-
         with KedroSession.create(project_path=Path.cwd()) as session:
             assert session.run() is not None
 
@@ -322,14 +328,15 @@ class TestKedroRun:
         data = data_set.load()
         assert data is not None
 
-    # def test_tf_model_weights(self):
-    #     filepath = None
-    #     architecture = "DenseNet121"
-    #     load_args = {"class_num": 14}
-    #     data_set = TfModelWeights(
-    #         filepath=filepath, architecture=architecture, load_args=load_args
-    #     )
-    #     data = data_set.load()
-    #     conf_params = project_context.config_loader.get("**/preprocess.yml")
-    #     added_layer = add_layer(data, conf_params["add_layer"])
-    #     assert added_layer is not None
+    def test_tf_model_weights(self, config_loader):
+        filepath = None
+        architecture = "DenseNet121"
+        load_args = {"class_num": 14}
+        data_set = TfModelWeights(
+            filepath=filepath, architecture=architecture, load_args=load_args
+        )
+        data = data_set.load()
+        conf_params = config_loader["parameters"]
+        print(conf_params)
+        added_layer = add_layer(data, conf_params["add_layer"])
+        assert added_layer is not None
